@@ -151,10 +151,10 @@ else
 	return
 end
 
--- Main container with enhanced glassmorphism
+-- Main container with enhanced glassmorphism (LINE ~155)
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.fromOffset(920, 620)
-main.Position = UDim2.new(0.5, -460, 0.5, -310)
+main.Size = UDim2.fromOffset(720, 480)  -- Changed from 920, 620
+main.Position = UDim2.new(0.5, -360, 0.5, -240)  -- Changed from -460, -310
 main.BackgroundColor3 = COLORS.BG_GLASS
 main.BackgroundTransparency = 0.12
 main.BorderSizePixel = 0
@@ -346,23 +346,23 @@ end)
 
 -- Enhanced Top bar
 local topBar = Instance.new("Frame", main)
-topBar.Size = UDim2.fromOffset(920, 75)
+topBar.Size = UDim2.fromOffset(720, 60)  -- Changed from 920, 75
 topBar.BackgroundTransparency = 1
 topBar.ZIndex = 3
 
 -- Logo with enhanced styling
 local logoContainer = Instance.new("Frame", topBar)
-logoContainer.Size = UDim2.fromOffset(220, 75)
-logoContainer.Position = UDim2.fromOffset(25, 0)
+logoContainer.Size = UDim2.fromOffset(180, 60)  -- Changed from 220, 75
+logoContainer.Position = UDim2.fromOffset(20, 0)  -- Changed from 25, 0
 logoContainer.BackgroundTransparency = 1
 
 local duckIcon = Instance.new("TextLabel", logoContainer)
-duckIcon.Size = UDim2.fromOffset(55, 55)
-duckIcon.Position = UDim2.fromOffset(0, 10)
+duckIcon.Size = UDim2.fromOffset(45, 45)  -- Changed from 55, 55
+duckIcon.Position = UDim2.fromOffset(0, 8)  -- Changed from 0, 10
 duckIcon.BackgroundTransparency = 1
 duckIcon.Text = "🦆"
 duckIcon.Font = Enum.Font.GothamBold
-duckIcon.TextSize = 40
+duckIcon.TextSize = 32  -- Changed from 40
 duckIcon.ZIndex = 4
 
 -- Add glow to duck icon
@@ -401,12 +401,12 @@ spawn(function()
 end)
 
 local titleLabel = Instance.new("TextLabel", logoContainer)
-titleLabel.Size = UDim2.fromOffset(155, 32)
-titleLabel.Position = UDim2.fromOffset(60, 12)
+titleLabel.Size = UDim2.fromOffset(130, 28)  -- Changed from 155, 32
+titleLabel.Position = UDim2.fromOffset(50, 10)  -- Changed from 60, 12
 titleLabel.BackgroundTransparency = 1
 titleLabel.Text = "DUCKY HUB"
 titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextSize = 24
+titleLabel.TextSize = 20  -- Changed from 24
 titleLabel.TextColor3 = COLORS.TEXT
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.ZIndex = 4
@@ -420,24 +420,27 @@ titleGradient.Color = ColorSequence.new({
 titleGradient.Rotation = 90
 
 local subtitle = Instance.new("TextLabel", logoContainer)
-subtitle.Size = UDim2.fromOffset(155, 22)
-subtitle.Position = UDim2.fromOffset(60, 45)
+subtitle.Size = UDim2.fromOffset(130, 18)  -- Changed from 155, 22
+subtitle.Position = UDim2.fromOffset(50, 38)  -- Changed from 60, 45
 subtitle.BackgroundTransparency = 1
 subtitle.Text = "discord.gg/duGj8hjB"
 subtitle.Font = Enum.Font.Gotham
-subtitle.TextSize = 11
+subtitle.TextSize = 10  -- Changed from 11
 subtitle.TextColor3 = COLORS.TEXT_MUTED
 subtitle.TextXAlignment = Enum.TextXAlignment.Left
 subtitle.ZIndex = 4
 
 -- Enhanced version badge
 local versionBadge = Instance.new("Frame", topBar)
-versionBadge.Size = UDim2.fromOffset(90, 32)
-versionBadge.Position = UDim2.fromOffset(255, 22)
+versionBadge.Size = UDim2.fromOffset(80, 28)  -- Changed from 90, 32
+versionBadge.Position = UDim2.fromOffset(210, 16)  -- Changed from 255, 22
 versionBadge.BackgroundColor3 = COLORS.PRIMARY
 versionBadge.BackgroundTransparency = 0.1
 versionBadge.BorderSizePixel = 0
 versionBadge.ZIndex = 4
+
+local badgeCorner = Instance.new("UICorner", versionBadge)
+badgeCorner.CornerRadius = UDim.new(0, 8)  -- Changed from 10
 
 local badgeCorner = Instance.new("UICorner", versionBadge)
 badgeCorner.CornerRadius = UDim.new(0, 10)
@@ -485,17 +488,20 @@ end)
 
 -- Premium close button
 local closeBtn = Instance.new("TextButton", topBar)
-closeBtn.Size = UDim2.fromOffset(45, 45)
-closeBtn.Position = UDim2.fromOffset(860, 15)
+closeBtn.Size = UDim2.fromOffset(38, 38)  -- Changed from 45, 45
+closeBtn.Position = UDim2.fromOffset(672, 11)  -- Changed from 860, 15
 closeBtn.BackgroundColor3 = COLORS.DANGER
 closeBtn.BackgroundTransparency = 0.8
 closeBtn.Text = "✕"
 closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 22
+closeBtn.TextSize = 18  -- Changed from 22
 closeBtn.TextColor3 = COLORS.TEXT
 closeBtn.BorderSizePixel = 0
 closeBtn.AutoButtonColor = false
 closeBtn.ZIndex = 4
+
+local closeCorner = Instance.new("UICorner", closeBtn)
+closeCorner.CornerRadius = UDim.new(0, 12)  -- Changed from 14
 
 local closeCorner = Instance.new("UICorner", closeBtn)
 closeCorner.CornerRadius = UDim.new(0, 14)
@@ -508,7 +514,7 @@ closeStroke.Transparency = 0.5
 closeBtn.MouseEnter:Connect(function()
 	TweenService:Create(closeBtn, ANIM.SMOOTH, {
 		BackgroundTransparency = 0,
-		Size = UDim2.fromOffset(50, 50),
+		Size = UDim2.fromOffset(42, 42),  -- Changed from 50, 50
 		Rotation = 90
 	}):Play()
 	TweenService:Create(closeStroke, ANIM.SMOOTH, {Transparency = 0, Thickness = 2.5}):Play()
@@ -517,7 +523,7 @@ end)
 closeBtn.MouseLeave:Connect(function()
 	TweenService:Create(closeBtn, ANIM.SMOOTH, {
 		BackgroundTransparency = 0.8,
-		Size = UDim2.fromOffset(45, 45),
+		Size = UDim2.fromOffset(38, 38),  -- Changed from 45, 45
 		Rotation = 0
 	}):Play()
 	TweenService:Create(closeStroke, ANIM.SMOOTH, {Transparency = 0.5, Thickness = 2}):Play()
@@ -526,8 +532,8 @@ end)
 closeBtn.MouseButton1Click:Connect(function()
 	TweenService:Create(main, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(800, 550),
-		Position = UDim2.new(0.5, -400, 0.5, -275)
+		Size = UDim2.fromOffset(620, 420),  -- Changed from 800, 550
+		Position = UDim2.new(0.5, -310, 0.5, -210)  -- Changed from -400, -275
 	}):Play()
 	
 	for _, child in pairs(main:GetDescendants()) do
@@ -555,8 +561,8 @@ end)
 
 -- Premium divider with gradient
 local divider = Instance.new("Frame", main)
-divider.Size = UDim2.fromOffset(880, 2)
-divider.Position = UDim2.fromOffset(20, 80)
+divider.Size = UDim2.fromOffset(690, 2)  -- Changed from 880, 2
+divider.Position = UDim2.fromOffset(15, 65)  -- Changed from 20, 80
 divider.BackgroundColor3 = COLORS.PRIMARY
 divider.BackgroundTransparency = 0.5
 divider.BorderSizePixel = 0
@@ -579,8 +585,8 @@ dividerGradient.Transparency = NumberSequence.new({
 
 -- Enhanced Sidebar
 local sidebar = Instance.new("Frame", main)
-sidebar.Size = UDim2.fromOffset(230, 520)
-sidebar.Position = UDim2.fromOffset(15, 90)
+sidebar.Size = UDim2.fromOffset(180, 400)  -- Changed from 230, 520
+sidebar.Position = UDim2.fromOffset(12, 72)  -- Changed from 15, 90
 sidebar.BackgroundColor3 = COLORS.BG_CARD
 sidebar.BackgroundTransparency = 0.3
 sidebar.BorderSizePixel = 0
@@ -614,14 +620,14 @@ sidebarGlowGradient.Transparency = NumberSequence.new({
 sidebarGlowGradient.Rotation = 90
 
 local navContainer = Instance.new("Frame", sidebar)
-navContainer.Size = UDim2.fromOffset(210, 490)
-navContainer.Position = UDim2.fromOffset(10, 15)
+navContainer.Size = UDim2.fromOffset(165, 380)  -- Changed from 210, 490
+navContainer.Position = UDim2.fromOffset(8, 10)  -- Changed from 10, 15
 navContainer.BackgroundTransparency = 1
 
--- Enhanced Content area
+--- Enhanced Content area
 local contentArea = Instance.new("Frame", main)
-contentArea.Size = UDim2.fromOffset(655, 520)
-contentArea.Position = UDim2.fromOffset(255, 90)
+contentArea.Size = UDim2.fromOffset(515, 400)  -- Changed from 655, 520
+contentArea.Position = UDim2.fromOffset(200, 72)  -- Changed from 255, 90
 contentArea.BackgroundTransparency = 1
 contentArea.ZIndex = 3
 contentArea.ClipsDescendants = true
@@ -630,20 +636,20 @@ contentArea.ClipsDescendants = true
 local function createSection(name, emoji)
 	local section = Instance.new("Frame", contentArea)
 	section.Name = name .. "Section"
-	section.Size = UDim2.fromOffset(655, 520)
+	section.Size = UDim2.fromOffset(515, 400)  -- Changed from 655, 520
 	section.BackgroundTransparency = 1
 	section.Visible = false
 	section.ZIndex = 4
 	
 	local header = Instance.new("Frame", section)
-	header.Size = UDim2.fromOffset(635, 70)
-	header.Position = UDim2.fromOffset(10, 0)
+	header.Size = UDim2.fromOffset(500, 55)  -- Changed from 635, 70
+	header.Position = UDim2.fromOffset(8, 0)  -- Changed from 10, 0
 	header.BackgroundColor3 = COLORS.BG_CARD
 	header.BackgroundTransparency = 0.4
 	header.BorderSizePixel = 0
 	
 	local headerCorner = Instance.new("UICorner", header)
-	headerCorner.CornerRadius = UDim.new(0, 18)
+	headerCorner.CornerRadius = UDim.new(0, 14)  -- Changed from 18
 	
 	local headerStroke = Instance.new("UIStroke", header)
 	headerStroke.Color = COLORS.PRIMARY
@@ -658,7 +664,7 @@ local function createSection(name, emoji)
 	headerGradient.BorderSizePixel = 0
 	
 	local headerGradientCorner = Instance.new("UICorner", headerGradient)
-	headerGradientCorner.CornerRadius = UDim.new(0, 18)
+	headerGradientCorner.CornerRadius = UDim.new(0, 14)  -- Changed from 18
 	
 	local headerGradientGrad = Instance.new("UIGradient", headerGradient)
 	headerGradientGrad.Transparency = NumberSequence.new({
@@ -668,45 +674,45 @@ local function createSection(name, emoji)
 	headerGradientGrad.Rotation = 90
 	
 	local headerIcon = Instance.new("TextLabel", header)
-	headerIcon.Size = UDim2.fromOffset(45, 45)
-	headerIcon.Position = UDim2.fromOffset(18, 12)
+	headerIcon.Size = UDim2.fromOffset(36, 36)  -- Changed from 45, 45
+	headerIcon.Position = UDim2.fromOffset(12, 10)  -- Changed from 18, 12
 	headerIcon.BackgroundTransparency = 1
 	headerIcon.Text = emoji
 	headerIcon.Font = Enum.Font.GothamBold
-	headerIcon.TextSize = 32
+	headerIcon.TextSize = 26  -- Changed from 32
 	headerIcon.TextColor3 = COLORS.ACCENT_LIGHT
 	headerIcon.ZIndex = 2
 	
 	local headerTitle = Instance.new("TextLabel", header)
-	headerTitle.Size = UDim2.fromOffset(550, 70)
-	headerTitle.Position = UDim2.fromOffset(75, 0)
+	headerTitle.Size = UDim2.fromOffset(440, 55)  -- Changed from 550, 70
+	headerTitle.Position = UDim2.fromOffset(60, 0)  -- Changed from 75, 0
 	headerTitle.BackgroundTransparency = 1
 	headerTitle.Text = name
 	headerTitle.Font = Enum.Font.GothamBold
-	headerTitle.TextSize = 22
+	headerTitle.TextSize = 18  -- Changed from 22
 	headerTitle.TextColor3 = COLORS.TEXT
 	headerTitle.TextXAlignment = Enum.TextXAlignment.Left
 	headerTitle.ZIndex = 2
 	
 	local content = Instance.new("ScrollingFrame", section)
 	content.Name = "Content"
-	content.Size = UDim2.fromOffset(635, 435)
-	content.Position = UDim2.fromOffset(10, 80)
+	content.Size = UDim2.fromOffset(500, 335)  -- Changed from 635, 435
+	content.Position = UDim2.fromOffset(8, 62)  -- Changed from 10, 80
 	content.BackgroundTransparency = 1
 	content.BorderSizePixel = 0
-	content.ScrollBarThickness = 5
+	content.ScrollBarThickness = 4  -- Changed from 5
 	content.ScrollBarImageColor3 = COLORS.PRIMARY
 	content.ScrollBarImageTransparency = 0.4
-	content.CanvasSize = UDim2.fromOffset(635, 0)
+	content.CanvasSize = UDim2.fromOffset(500, 0)  -- Changed from 635, 0
 	content.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	
 	local layout = Instance.new("UIListLayout", content)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.Padding = UDim.new(0, 12)
+	layout.Padding = UDim.new(0, 10)  -- Changed from 12
 	
 	local padding = Instance.new("UIPadding", content)
-	padding.PaddingTop = UDim.new(0, 8)
-	padding.PaddingBottom = UDim.new(0, 8)
+	padding.PaddingTop = UDim.new(0, 6)  -- Changed from 8
+	padding.PaddingBottom = UDim.new(0, 6)  -- Changed from 8
 	
 	return section, content
 end
@@ -722,8 +728,8 @@ local currentSection = nil
 
 local function createNavButton(text, emoji, order, section)
 	local btn = Instance.new("TextButton", navContainer)
-	btn.Size = UDim2.fromOffset(210, 62)
-	btn.Position = UDim2.fromOffset(0, (order - 1) * 72)
+	btn.Size = UDim2.fromOffset(165, 50)  -- Changed from 210, 62
+	btn.Position = UDim2.fromOffset(0, (order - 1) * 58)  -- Changed from 72
 	btn.BackgroundColor3 = COLORS.BG_CARD
 	btn.BackgroundTransparency = 0.6
 	btn.Text = ""
@@ -732,7 +738,7 @@ local function createNavButton(text, emoji, order, section)
 	btn.ZIndex = 4
 	
 	local corner = Instance.new("UICorner", btn)
-	corner.CornerRadius = UDim.new(0, 16)
+	corner.CornerRadius = UDim.new(0, 13)  -- Changed from 16
 	
 	local stroke = Instance.new("UIStroke", btn)
 	stroke.Color = COLORS.PRIMARY
@@ -748,32 +754,32 @@ local function createNavButton(text, emoji, order, section)
 	hoverGlow.ZIndex = 4
 	
 	local hoverCorner = Instance.new("UICorner", hoverGlow)
-	hoverCorner.CornerRadius = UDim.new(0, 16)
+	hoverCorner.CornerRadius = UDim.new(0, 13)  -- Changed from 16
 	
 	local iconLabel = Instance.new("TextLabel", btn)
-	iconLabel.Size = UDim2.fromOffset(45, 45)
-	iconLabel.Position = UDim2.fromOffset(14, 8)
+	iconLabel.Size = UDim2.fromOffset(36, 36)  -- Changed from 45, 45
+	iconLabel.Position = UDim2.fromOffset(10, 7)  -- Changed from 14, 8
 	iconLabel.BackgroundTransparency = 1
 	iconLabel.Text = emoji
 	iconLabel.Font = Enum.Font.GothamBold
-	iconLabel.TextSize = 28
+	iconLabel.TextSize = 22  -- Changed from 28
 	iconLabel.TextColor3 = COLORS.TEXT_MUTED
 	iconLabel.ZIndex = 5
 	
 	local textLabel = Instance.new("TextLabel", btn)
-	textLabel.Size = UDim2.fromOffset(140, 62)
-	textLabel.Position = UDim2.fromOffset(64, 0)
+	textLabel.Size = UDim2.fromOffset(110, 50)  -- Changed from 140, 62
+	textLabel.Position = UDim2.fromOffset(52, 0)  -- Changed from 64, 0
 	textLabel.BackgroundTransparency = 1
 	textLabel.Text = text
 	textLabel.Font = Enum.Font.GothamBold
-	textLabel.TextSize = 15
+	textLabel.TextSize = 13  -- Changed from 15
 	textLabel.TextColor3 = COLORS.TEXT_MUTED
 	textLabel.TextXAlignment = Enum.TextXAlignment.Left
 	textLabel.ZIndex = 5
 	
 	local indicator = Instance.new("Frame", btn)
-	indicator.Size = UDim2.fromOffset(4, 0)
-	indicator.Position = UDim2.fromOffset(0, 31)
+	indicator.Size = UDim2.fromOffset(3, 0)  -- Changed from 4, 0
+	indicator.Position = UDim2.fromOffset(0, 25)  -- Changed from 31
 	indicator.AnchorPoint = Vector2.new(0, 0.5)
 	indicator.BackgroundColor3 = COLORS.ACCENT
 	indicator.BorderSizePixel = 0
@@ -787,9 +793,9 @@ local function createNavButton(text, emoji, order, section)
 			TweenService:Create(btn, ANIM.SMOOTH, {BackgroundTransparency = 0.35}):Play()
 			TweenService:Create(stroke, ANIM.SMOOTH, {Transparency = 0.4}):Play()
 			TweenService:Create(hoverGlow, ANIM.SMOOTH, {BackgroundTransparency = 0.85}):Play()
-			TweenService:Create(iconLabel, ANIM.BOUNCE, {TextColor3 = COLORS.PRIMARY_LIGHT, TextSize = 32}):Play()
+			TweenService:Create(iconLabel, ANIM.BOUNCE, {TextColor3 = COLORS.PRIMARY_LIGHT, TextSize = 26}):Play()  -- Changed from 32
 			TweenService:Create(textLabel, ANIM.SMOOTH, {TextColor3 = COLORS.TEXT}):Play()
-			TweenService:Create(indicator, ANIM.ELASTIC, {Size = UDim2.fromOffset(4, 40)}):Play()
+			TweenService:Create(indicator, ANIM.ELASTIC, {Size = UDim2.fromOffset(3, 32)}):Play()  -- Changed from 4, 40
 		end
 	end)
 	
@@ -798,9 +804,9 @@ local function createNavButton(text, emoji, order, section)
 			TweenService:Create(btn, ANIM.SMOOTH, {BackgroundTransparency = 0.6}):Play()
 			TweenService:Create(stroke, ANIM.SMOOTH, {Transparency = 0.75}):Play()
 			TweenService:Create(hoverGlow, ANIM.SMOOTH, {BackgroundTransparency = 1}):Play()
-			TweenService:Create(iconLabel, ANIM.BOUNCE, {TextColor3 = COLORS.TEXT_MUTED, TextSize = 28}):Play()
+			TweenService:Create(iconLabel, ANIM.BOUNCE, {TextColor3 = COLORS.TEXT_MUTED, TextSize = 22}):Play()  -- Changed from 28
 			TweenService:Create(textLabel, ANIM.SMOOTH, {TextColor3 = COLORS.TEXT_MUTED}):Play()
-			TweenService:Create(indicator, ANIM.SMOOTH, {Size = UDim2.fromOffset(4, 0)}):Play()
+			TweenService:Create(indicator, ANIM.SMOOTH, {Size = UDim2.fromOffset(3, 0)}):Play()  -- Changed from 4, 0
 		end
 	end)
 	
@@ -835,13 +841,13 @@ local function createNavButton(text, emoji, order, section)
 				TweenService:Create(oldHoverGlow, ANIM.SMOOTH, {BackgroundTransparency = 1}):Play()
 			end
 			if oldIcon then
-				TweenService:Create(oldIcon, ANIM.SMOOTH, {TextColor3 = COLORS.TEXT_MUTED, TextSize = 28}):Play()
+				TweenService:Create(oldIcon, ANIM.SMOOTH, {TextColor3 = COLORS.TEXT_MUTED, TextSize = 22}):Play()  -- Changed from 28
 			end
 			if oldText then
 				TweenService:Create(oldText, ANIM.SMOOTH, {TextColor3 = COLORS.TEXT_MUTED}):Play()
 			end
 			if oldIndicator then
-				TweenService:Create(oldIndicator, ANIM.SMOOTH, {Size = UDim2.fromOffset(4, 0)}):Play()
+				TweenService:Create(oldIndicator, ANIM.SMOOTH, {Size = UDim2.fromOffset(3, 0)}):Play()  -- Changed from 4, 0
 			end
 		end
 		
@@ -854,9 +860,9 @@ local function createNavButton(text, emoji, order, section)
 		TweenService:Create(btn, ANIM.SMOOTH, {BackgroundTransparency = 0.15}):Play()
 		TweenService:Create(stroke, ANIM.SMOOTH, {Transparency = 0.25, Color = COLORS.ACCENT}):Play()
 		TweenService:Create(hoverGlow, ANIM.SMOOTH, {BackgroundTransparency = 0.7}):Play()
-		TweenService:Create(iconLabel, ANIM.ELASTIC, {TextColor3 = COLORS.ACCENT_LIGHT, TextSize = 34}):Play()
+		TweenService:Create(iconLabel, ANIM.ELASTIC, {TextColor3 = COLORS.ACCENT_LIGHT, TextSize = 27}):Play()  -- Changed from 34
 		TweenService:Create(textLabel, ANIM.SMOOTH, {TextColor3 = COLORS.TEXT}):Play()
-		TweenService:Create(indicator, ANIM.ELASTIC, {Size = UDim2.fromOffset(5, 62), BackgroundColor3 = COLORS.ACCENT}):Play()
+		TweenService:Create(indicator, ANIM.ELASTIC, {Size = UDim2.fromOffset(4, 50), BackgroundColor3 = COLORS.ACCENT}):Play()  -- Changed from 5, 62
 		
 		section.Visible = true
 		currentNavButton = btn
@@ -874,13 +880,13 @@ local settingsNavBtn = createNavButton("Settings", "⚙️", 4, settingsSection)
 -- Premium toggle with enhanced visuals
 local function createToggle(text, description, parent)
 	local container = Instance.new("Frame", parent)
-	container.Size = UDim2.fromOffset(615, description and 95 or 70)
+	container.Size = UDim2.fromOffset(485, description and 75 or 55)  -- Changed from 615, 95/70
 	container.BackgroundColor3 = COLORS.BG_CARD
 	container.BackgroundTransparency = 0.4
 	container.BorderSizePixel = 0
 	
 	local corner = Instance.new("UICorner", container)
-	corner.CornerRadius = UDim.new(0, 16)
+	corner.CornerRadius = UDim.new(0, 13)  -- Changed from 16
 	
 	local stroke = Instance.new("UIStroke", container)
 	stroke.Color = COLORS.PRIMARY
@@ -895,7 +901,7 @@ local function createToggle(text, description, parent)
 	topGradient.BorderSizePixel = 0
 	
 	local topGradientCorner = Instance.new("UICorner", topGradient)
-	topGradientCorner.CornerRadius = UDim.new(0, 16)
+	topGradientCorner.CornerRadius = UDim.new(0, 13)  -- Changed from 16
 	
 	local topGradGrad = Instance.new("UIGradient", topGradient)
 	topGradGrad.Transparency = NumberSequence.new({
@@ -905,24 +911,24 @@ local function createToggle(text, description, parent)
 	topGradGrad.Rotation = 90
 	
 	local label = Instance.new("TextLabel", container)
-	label.Size = UDim2.fromOffset(480, 24)
-	label.Position = UDim2.fromOffset(20, description and 18 or 23)
+	label.Size = UDim2.fromOffset(370, 22)  -- Changed from 480, 24
+	label.Position = UDim2.fromOffset(15, description and 14 or 17)  -- Changed from 20, 18/23
 	label.BackgroundTransparency = 1
 	label.Text = text
 	label.Font = Enum.Font.GothamBold
-	label.TextSize = 16
+	label.TextSize = 14  -- Changed from 16
 	label.TextColor3 = COLORS.TEXT
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.ZIndex = 2
 	
 	if description then
 		local desc = Instance.new("TextLabel", container)
-		desc.Size = UDim2.fromOffset(480, 40)
-		desc.Position = UDim2.fromOffset(20, 48)
+		desc.Size = UDim2.fromOffset(370, 32)  -- Changed from 480, 40
+		desc.Position = UDim2.fromOffset(15, 38)  -- Changed from 20, 48
 		desc.BackgroundTransparency = 1
 		desc.Text = description
 		desc.Font = Enum.Font.Gotham
-		desc.TextSize = 13
+		desc.TextSize = 11  -- Changed from 13
 		desc.TextColor3 = COLORS.TEXT_MUTED
 		desc.TextXAlignment = Enum.TextXAlignment.Left
 		desc.TextWrapped = true
@@ -930,8 +936,8 @@ local function createToggle(text, description, parent)
 	end
 	
 	local toggleBg = Instance.new("Frame", container)
-	toggleBg.Size = UDim2.fromOffset(64, 34)
-	toggleBg.Position = UDim2.fromOffset(535, description and 31 or 18)
+	toggleBg.Size = UDim2.fromOffset(54, 28)  -- Changed from 64, 34
+	toggleBg.Position = UDim2.fromOffset(420, description and 24 or 14)  -- Changed from 535, 31/18
 	toggleBg.BackgroundColor3 = COLORS.BG_GLASS
 	toggleBg.BorderSizePixel = 0
 	toggleBg.ZIndex = 2
@@ -945,7 +951,7 @@ local function createToggle(text, description, parent)
 	toggleStroke.Transparency = 0.5
 	
 	local toggleCircle = Instance.new("Frame", toggleBg)
-	toggleCircle.Size = UDim2.fromOffset(28, 28)
+	toggleCircle.Size = UDim2.fromOffset(22, 22)  -- Changed from 28, 28
 	toggleCircle.Position = UDim2.fromOffset(3, 3)
 	toggleCircle.BackgroundColor3 = COLORS.TEXT_MUTED
 	toggleCircle.BorderSizePixel = 0
@@ -998,7 +1004,7 @@ local function createToggle(text, description, parent)
 		if isOn then
 			TweenService:Create(toggleBg, ANIM.SMOOTH, {BackgroundColor3 = COLORS.PRIMARY}):Play()
 			TweenService:Create(toggleStroke, ANIM.SMOOTH, {Color = COLORS.PRIMARY_LIGHT, Transparency = 0.2, Thickness = 2.5}):Play()
-			TweenService:Create(toggleCircle, ANIM.ELASTIC, {Position = UDim2.fromOffset(33, 3), BackgroundColor3 = COLORS.TEXT}):Play()
+			TweenService:Create(toggleCircle, ANIM.ELASTIC, {Position = UDim2.fromOffset(29, 3), BackgroundColor3 = COLORS.TEXT}):Play()  -- Changed from 33, 3
 			TweenService:Create(circleGlow, ANIM.SMOOTH, {ImageTransparency = 0.4}):Play()
 			TweenService:Create(container, ANIM.SMOOTH, {BackgroundTransparency = 0.25}):Play()
 			TweenService:Create(stroke, ANIM.SMOOTH, {Color = COLORS.PRIMARY, Transparency = 0.4}):Play()
@@ -1016,9 +1022,9 @@ local function createToggle(text, description, parent)
 	
 	toggleBtn.MouseButton1Click:Connect(function()
 		-- Haptic feedback animation
-		TweenService:Create(toggleCircle, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = UDim2.fromOffset(24, 24)}):Play()
+		TweenService:Create(toggleCircle, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = UDim2.fromOffset(20, 20)}):Play()  -- Changed from 24, 24
 		task.wait(0.1)
-		TweenService:Create(toggleCircle, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = UDim2.fromOffset(28, 28)}):Play()
+		TweenService:Create(toggleCircle, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = UDim2.fromOffset(22, 22)}):Play()  -- Changed from 28, 28
 	end)
 	
 	return toggleBtn, function() return isOn end, toggle
@@ -1768,13 +1774,13 @@ end)
 -- Helper: Create premium action card with enhanced styling
 local function createActionCard(text, description, icon, parent, callback)
 	local container = Instance.new("Frame", parent)
-	container.Size = UDim2.fromOffset(615, 95)
+	container.Size = UDim2.fromOffset(485, 75)  -- Changed from 615, 95
 	container.BackgroundColor3 = COLORS.BG_CARD
 	container.BackgroundTransparency = 0.4
 	container.BorderSizePixel = 0
 	
 	local corner = Instance.new("UICorner", container)
-	corner.CornerRadius = UDim.new(0, 16)
+	corner.CornerRadius = UDim.new(0, 13)  -- Changed from 16
 	
 	local stroke = Instance.new("UIStroke", container)
 	stroke.Color = COLORS.PRIMARY
@@ -1789,7 +1795,7 @@ local function createActionCard(text, description, icon, parent, callback)
 	topGradient.BorderSizePixel = 0
 	
 	local topGradCorner = Instance.new("UICorner", topGradient)
-	topGradCorner.CornerRadius = UDim.new(0, 16)
+	topGradCorner.CornerRadius = UDim.new(0, 13)  -- Changed from 16
 	
 	local topGradGrad = Instance.new("UIGradient", topGradient)
 	topGradGrad.Transparency = NumberSequence.new({
@@ -1800,15 +1806,15 @@ local function createActionCard(text, description, icon, parent, callback)
 	
 	-- Icon background with glow
 	local iconBg = Instance.new("Frame", container)
-	iconBg.Size = UDim2.fromOffset(60, 60)
-	iconBg.Position = UDim2.fromOffset(18, 18)
+	iconBg.Size = UDim2.fromOffset(48, 48)  -- Changed from 60, 60
+	iconBg.Position = UDim2.fromOffset(14, 14)  -- Changed from 18, 18
 	iconBg.BackgroundColor3 = COLORS.PRIMARY
 	iconBg.BackgroundTransparency = 0.8
 	iconBg.BorderSizePixel = 0
 	iconBg.ZIndex = 2
 	
 	local iconCorner = Instance.new("UICorner", iconBg)
-	iconCorner.CornerRadius = UDim.new(0, 14)
+	iconCorner.CornerRadius = UDim.new(0, 11)  -- Changed from 14
 	
 	local iconStroke = Instance.new("UIStroke", iconBg)
 	iconStroke.Color = COLORS.ACCENT
@@ -1832,28 +1838,28 @@ local function createActionCard(text, description, icon, parent, callback)
 	iconLabel.BackgroundTransparency = 1
 	iconLabel.Text = icon
 	iconLabel.Font = Enum.Font.GothamBold
-	iconLabel.TextSize = 36
+	iconLabel.TextSize = 28  -- Changed from 36
 	iconLabel.TextColor3 = COLORS.ACCENT
 	iconLabel.ZIndex = 3
 	
 	local label = Instance.new("TextLabel", container)
-	label.Size = UDim2.fromOffset(430, 24)
-	label.Position = UDim2.fromOffset(88, 20)
+	label.Size = UDim2.fromOffset(330, 20)  -- Changed from 430, 24
+	label.Position = UDim2.fromOffset(70, 16)  -- Changed from 88, 20
 	label.BackgroundTransparency = 1
 	label.Text = text
 	label.Font = Enum.Font.GothamBold
-	label.TextSize = 16
+	label.TextSize = 14  -- Changed from 16
 	label.TextColor3 = COLORS.TEXT
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.ZIndex = 2
 	
 	local desc = Instance.new("TextLabel", container)
-	desc.Size = UDim2.fromOffset(430, 40)
-	desc.Position = UDim2.fromOffset(88, 50)
+	desc.Size = UDim2.fromOffset(330, 32)  -- Changed from 430, 40
+	desc.Position = UDim2.fromOffset(70, 40)  -- Changed from 88, 50
 	desc.BackgroundTransparency = 1
 	desc.Text = description
 	desc.Font = Enum.Font.Gotham
-	desc.TextSize = 13
+	desc.TextSize = 11  -- Changed from 13
 	desc.TextColor3 = COLORS.TEXT_MUTED
 	desc.TextXAlignment = Enum.TextXAlignment.Left
 	desc.TextWrapped = true
@@ -1861,20 +1867,20 @@ local function createActionCard(text, description, icon, parent, callback)
 	
 	-- Premium action button
 	local actionBtn = Instance.new("TextButton", container)
-	actionBtn.Size = UDim2.fromOffset(75, 38)
-	actionBtn.Position = UDim2.fromOffset(524, 29)
+	actionBtn.Size = UDim2.fromOffset(62, 32)  -- Changed from 75, 38
+	actionBtn.Position = UDim2.fromOffset(412, 22)  -- Changed from 524, 29
 	actionBtn.BackgroundColor3 = COLORS.PRIMARY
 	actionBtn.BackgroundTransparency = 0.15
 	actionBtn.Text = "▶"
 	actionBtn.Font = Enum.Font.GothamBold
-	actionBtn.TextSize = 22
+	actionBtn.TextSize = 18  -- Changed from 22
 	actionBtn.TextColor3 = COLORS.TEXT
 	actionBtn.BorderSizePixel = 0
 	actionBtn.AutoButtonColor = false
 	actionBtn.ZIndex = 2
 	
 	local btnCorner = Instance.new("UICorner", actionBtn)
-	btnCorner.CornerRadius = UDim.new(0, 12)
+	btnCorner.CornerRadius = UDim.new(0, 10)  -- Changed from 12
 	
 	local btnStroke = Instance.new("UIStroke", actionBtn)
 	btnStroke.Color = COLORS.ACCENT
@@ -1897,7 +1903,7 @@ local function createActionCard(text, description, icon, parent, callback)
 	actionBtn.MouseEnter:Connect(function()
 		TweenService:Create(container, ANIM.SMOOTH, {BackgroundTransparency = 0.25}):Play()
 		TweenService:Create(stroke, ANIM.SMOOTH, {Transparency = 0.5}):Play()
-		TweenService:Create(actionBtn, ANIM.SMOOTH, {BackgroundTransparency = 0, Size = UDim2.fromOffset(80, 42)}):Play()
+		TweenService:Create(actionBtn, ANIM.SMOOTH, {BackgroundTransparency = 0, Size = UDim2.fromOffset(66, 36)}):Play()  -- Changed from 80, 42
 		TweenService:Create(btnStroke, ANIM.SMOOTH, {Thickness = 2.5, Transparency = 0.1}):Play()
 		TweenService:Create(btnGlow, ANIM.SMOOTH, {ImageTransparency = 0.5}):Play()
 		TweenService:Create(iconGlow, ANIM.SMOOTH, {ImageTransparency = 0.4}):Play()
@@ -1906,7 +1912,7 @@ local function createActionCard(text, description, icon, parent, callback)
 	actionBtn.MouseLeave:Connect(function()
 		TweenService:Create(container, ANIM.SMOOTH, {BackgroundTransparency = 0.4}):Play()
 		TweenService:Create(stroke, ANIM.SMOOTH, {Transparency = 0.75}):Play()
-		TweenService:Create(actionBtn, ANIM.SMOOTH, {BackgroundTransparency = 0.15, Size = UDim2.fromOffset(75, 38)}):Play()
+		TweenService:Create(actionBtn, ANIM.SMOOTH, {BackgroundTransparency = 0.15, Size = UDim2.fromOffset(62, 32)}):Play()  -- Changed from 75, 38
 		TweenService:Create(btnStroke, ANIM.SMOOTH, {Thickness = 2, Transparency = 0.3}):Play()
 		TweenService:Create(btnGlow, ANIM.SMOOTH, {ImageTransparency = 1}):Play()
 		TweenService:Create(iconGlow, ANIM.SMOOTH, {ImageTransparency = 0.7}):Play()
@@ -2848,20 +2854,37 @@ local friendsCard, friendsBtn = createActionCard(
 
 -- Steal section placeholder
 local stealInfo = Instance.new("TextLabel", stealContent)
-stealInfo.Size = UDim2.fromOffset(615, 110)
+stealInfo.Size = UDim2.fromOffset(485, 85)  -- Changed from 615, 110
 stealInfo.BackgroundColor3 = COLORS.BG_CARD
 stealInfo.BackgroundTransparency = 0.4
 stealInfo.BorderSizePixel = 0
 stealInfo.Text = "⚡ INSTANT STEAL\n\nAuto-steal features coming soon!"
 stealInfo.Font = Enum.Font.GothamBold
-stealInfo.TextSize = 17
+stealInfo.TextSize = 15  -- Changed from 17
 stealInfo.TextColor3 = COLORS.TEXT
 stealInfo.TextWrapped = true
-Instance.new("UICorner", stealInfo).CornerRadius = UDim.new(0, 16)
+Instance.new("UICorner", stealInfo).CornerRadius = UDim.new(0, 13)  -- Changed from 16
 local stealStroke = Instance.new("UIStroke", stealInfo)
 stealStroke.Color = COLORS.PRIMARY
 stealStroke.Thickness = 1.5
 stealStroke.Transparency = 0.75
+
+-- Settings section placeholder
+local settingsInfo = Instance.new("TextLabel", settingsContent)
+settingsInfo.Size = UDim2.fromOffset(485, 85)  -- Changed from 615, 110
+settingsInfo.BackgroundColor3 = COLORS.BG_CARD
+settingsInfo.BackgroundTransparency = 0.4
+settingsInfo.BorderSizePixel = 0
+settingsInfo.Text = "⚙️ SETTINGS\n\nCustomization options coming soon!"
+settingsInfo.Font = Enum.Font.GothamBold
+settingsInfo.TextSize = 15  -- Changed from 17
+settingsInfo.TextColor3 = COLORS.TEXT
+settingsInfo.TextWrapped = true
+Instance.new("UICorner", settingsInfo).CornerRadius = UDim.new(0, 13)  -- Changed from 16
+local settingsStroke = Instance.new("UIStroke", settingsInfo)
+settingsStroke.Color = COLORS.PRIMARY
+settingsStroke.Thickness = 1.5
+settingsStroke.Transparency = 0.75
 
 -- Settings section placeholder
 local settingsInfo = Instance.new("TextLabel", settingsContent)
@@ -2916,23 +2939,11 @@ main.Size = UDim2.fromOffset(0, 0)
 main.Position = UDim2.new(0.5, 0, 0.5, 0)
 main.BackgroundTransparency = 1
 
-for _, child in pairs(main:GetDescendants()) do
-	if child:IsA("TextLabel") or child:IsA("TextButton") then
-		child.TextTransparency = 1
-	elseif child:IsA("Frame") or child:IsA("ImageLabel") then
-		if child.Name ~= "glassLayer1" and child.Name ~= "glassLayer2" then
-			child.BackgroundTransparency = 1
-		end
-	elseif child:IsA("UIStroke") then
-		child.Transparency = 1
-	end
-end
-
-task.wait(0.1)
+-- ... (rest stays same until final tween)
 
 TweenService:Create(main, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-	Size = UDim2.fromOffset(920, 620),
-	Position = UDim2.new(0.5, -460, 0.5, -310),
+	Size = UDim2.fromOffset(720, 480),  -- Changed from 920, 620
+	Position = UDim2.new(0.5, -360, 0.5, -240),  -- Changed from -460, -310
 	BackgroundTransparency = 0.12
 }):Play()
 
