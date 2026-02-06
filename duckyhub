@@ -1956,7 +1956,7 @@ local function sendChatMessage(message)
 end
 
 local function spamAdminCommands(targetPlayer)
-	local commands = {"rocket", "ragdoll", "balloon", "inverse", "jail", "tiny", "jumpscare", "morph"}
+	local commands = {"rocket", "ragdoll", "balloon", "inverse", "nightvision", "jail", "tiny", "jumpscare", "morph"}
 	
 	print("🚀 Starting spam on: " .. targetPlayer)
 	
@@ -2869,22 +2869,7 @@ stealStroke.Color = COLORS.PRIMARY
 stealStroke.Thickness = 1.5
 stealStroke.Transparency = 0.75
 
--- Settings section placeholder
-local settingsInfo = Instance.new("TextLabel", settingsContent)
-settingsInfo.Size = UDim2.fromOffset(485, 85)  -- Changed from 615, 110
-settingsInfo.BackgroundColor3 = COLORS.BG_CARD
-settingsInfo.BackgroundTransparency = 0.4
-settingsInfo.BorderSizePixel = 0
-settingsInfo.Text = "⚙️ SETTINGS\n\nCustomization options coming soon!"
-settingsInfo.Font = Enum.Font.GothamBold
-settingsInfo.TextSize = 15  -- Changed from 17
-settingsInfo.TextColor3 = COLORS.TEXT
-settingsInfo.TextWrapped = true
-Instance.new("UICorner", settingsInfo).CornerRadius = UDim.new(0, 13)  -- Changed from 16
-local settingsStroke = Instance.new("UIStroke", settingsInfo)
-settingsStroke.Color = COLORS.PRIMARY
-settingsStroke.Thickness = 1.5
-settingsStroke.Transparency = 0.75
+
 
 -- Settings section placeholder
 local settingsInfo = Instance.new("TextLabel", settingsContent)
