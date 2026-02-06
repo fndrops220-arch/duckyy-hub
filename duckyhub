@@ -1956,7 +1956,7 @@ local function sendChatMessage(message)
 end
 
 local function spamAdminCommands(targetPlayer)
-	local commands = {"rocket", "ragdoll", "balloon", "inverse", "nightvision", "jail", "control", "tiny", "jumpscare", "morph"}
+	local commands = {"rocket", "ragdoll", "balloon", "inverse", "nightvision", "jail", "tiny", "jumpscare", "morph"}
 	
 	print("🚀 Starting spam on: " .. targetPlayer)
 	
