@@ -3586,8 +3586,8 @@ stealPlaceholderStroke.Transparency = 0.75
 print("✅ Steal section ready for new features!")
 
 --======================
--- TP STEAL SECTION - ULTRA PREMIUM
--- Place markers and teleport to them
+-- TP STEAL SECTION - ULTRA PREMIUM WITH HOTKEY CYCLING
+-- Place markers and teleport to them with hotkey
 --======================
 
 -- Remove old placeholder
@@ -3600,6 +3600,15 @@ local markerMenuOpen = false
 local markerMenu = nil
 local markerListFrame = nil
 local counterText = nil
+
+-- Hotkey cycling state
+local cycleHotkey = Enum.KeyCode.One -- Default hotkey
+local currentMarkerIndex = 0
+local isHoldingCycle = false
+local cycleConnection = nil
+local hotkeyConfigOpen = false
+local hotkeyConfigMenu = nil
+local configuringCycleHotkey = false
 
 -- Find ground position below point
 local function findGroundPosition(position)
@@ -3619,7 +3628,7 @@ local function findGroundPosition(position)
 	end
 end
 
--- Create a premium beam marker at player position
+-- Create a premium beam marker at player position (SIMPLIFIED)
 local function createMarker(name, position)
 	if #markers >= maxMarkers then
 		warn("❌ Max markers reached (10)")
@@ -3640,80 +3649,49 @@ local function createMarker(name, position)
 	base.Anchored = true
 	base.CanCollide = false
 	base.Material = Enum.Material.Neon
-	base.Color = COLORS.BG_GLASS
+	base.Color = COLORS.ACCENT
 	base.Transparency = 0.3
 	
 	local baseMesh = Instance.new("CylinderMesh", base)
 	
-	-- Outer glow ring
-	local glowRing = Instance.new("Part", markerContainer)
-	glowRing.Size = Vector3.new(3.5, 0.2, 3.5)
-	glowRing.Position = groundPos + Vector3.new(0, 0.1, 0)
-	glowRing.Anchored = true
-	glowRing.CanCollide = false
-	glowRing.Material = Enum.Material.Neon
-	glowRing.Color = COLORS.ACCENT
-	glowRing.Transparency = 0.5
-	
-	local ringMesh = Instance.new("CylinderMesh", glowRing)
-	
-	-- Main beam pillar (VERTICAL)
+	-- Simple vertical beam (JUST ONE BEAM)
 	local beam = Instance.new("Part", markerContainer)
 	beam.Name = "Beam"
-	beam.Size = Vector3.new(0.8, 500, 0.8)
+	beam.Size = Vector3.new(0.5, 500, 0.5)
 	beam.Position = groundPos + Vector3.new(0, 250, 0)
 	beam.Anchored = true
 	beam.CanCollide = false
 	beam.Material = Enum.Material.Neon
 	beam.Color = COLORS.PRIMARY_GLOW
-	beam.Transparency = 0.4
-	
-	-- Beam gradient
-	local beamGradient = Instance.new("UIGradient")
-	-- Note: UIGradient doesn't work on 3D parts, so we'll use multiple parts
-	
-	-- Secondary beam (brighter)
-	local innerBeam = Instance.new("Part", markerContainer)
-	innerBeam.Size = Vector3.new(0.4, 500, 0.4)
-	innerBeam.Position = groundPos + Vector3.new(0, 250, 0)
-	innerBeam.Anchored = true
-	innerBeam.CanCollide = false
-	innerBeam.Material = Enum.Material.Neon
-	innerBeam.Color = COLORS.ACCENT
-	innerBeam.Transparency = 0.2
+	beam.Transparency = 0.5
 	
 	-- Point light at base
 	local light = Instance.new("PointLight", base)
 	light.Color = COLORS.ACCENT
-	light.Brightness = 4
-	light.Range = 30
-	light.Shadows = true
+	light.Brightness = 3
+	light.Range = 20
 	
-	-- Particle emitter at base
+	-- Simple particle emitter
 	local particles = Instance.new("ParticleEmitter", base)
 	particles.Texture = "rbxasset://textures/particles/sparkles_main.dds"
-	particles.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, COLORS.ACCENT),
-		ColorSequenceKeypoint.new(1, COLORS.PRIMARY_GLOW)
-	})
+	particles.Color = ColorSequence.new(COLORS.ACCENT)
 	particles.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.4),
+		NumberSequenceKeypoint.new(0, 0.3),
 		NumberSequenceKeypoint.new(1, 0)
 	})
 	particles.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.4),
+		NumberSequenceKeypoint.new(0, 0.5),
 		NumberSequenceKeypoint.new(1, 1)
 	})
-	particles.Lifetime = NumberRange.new(1.5, 3)
-	particles.Rate = 15
-	particles.Speed = NumberRange.new(3, 6)
-	particles.SpreadAngle = Vector2.new(25, 25)
+	particles.Lifetime = NumberRange.new(1, 2)
+	particles.Rate = 8
+	particles.Speed = NumberRange.new(2, 4)
+	particles.SpreadAngle = Vector2.new(20, 20)
 	particles.EmissionDirection = Enum.NormalId.Top
-	particles.Acceleration = Vector3.new(0, 2, 0)
 	
 	-- Premium billboard
 	local billboard = Instance.new("BillboardGui", beam)
-	billboard.Size = UDim2.fromOffset(180, 70)
+	billboard.Size = UDim2.fromOffset(160, 60)
 	billboard.StudsOffset = Vector3.new(0, 3, 0)
 	billboard.AlwaysOnTop = true
 	billboard.MaxDistance = 500
@@ -3721,62 +3699,45 @@ local function createMarker(name, position)
 	local billboardFrame = Instance.new("Frame", billboard)
 	billboardFrame.Size = UDim2.fromScale(1, 1)
 	billboardFrame.BackgroundColor3 = COLORS.BG_GLASS
-	billboardFrame.BackgroundTransparency = 0.08
+	billboardFrame.BackgroundTransparency = 0.1
 	billboardFrame.BorderSizePixel = 0
 	
 	local billCorner = Instance.new("UICorner", billboardFrame)
-	billCorner.CornerRadius = UDim.new(0, 12)
+	billCorner.CornerRadius = UDim.new(0, 10)
 	
 	local billStroke = Instance.new("UIStroke", billboardFrame)
 	billStroke.Color = COLORS.ACCENT
-	billStroke.Thickness = 2.5
-	billStroke.Transparency = 0.15
-	
-	-- Gradient overlay
-	local billGrad = Instance.new("Frame", billboardFrame)
-	billGrad.Size = UDim2.fromScale(1, 0.5)
-	billGrad.BackgroundColor3 = COLORS.ACCENT
-	billGrad.BackgroundTransparency = 0.82
-	billGrad.BorderSizePixel = 0
-	
-	local billGradCorner = Instance.new("UICorner", billGrad)
-	billGradCorner.CornerRadius = UDim.new(0, 12)
-	
-	local billGradGrad = Instance.new("UIGradient", billGrad)
-	billGradGrad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(1, 1)
-	})
-	billGradGrad.Rotation = 90
+	billStroke.Thickness = 2
+	billStroke.Transparency = 0.2
 	
 	local markerIcon = Instance.new("TextLabel", billboardFrame)
-	markerIcon.Size = UDim2.fromOffset(32, 32)
-	markerIcon.Position = UDim2.fromOffset(8, 6)
+	markerIcon.Size = UDim2.fromOffset(28, 28)
+	markerIcon.Position = UDim2.fromOffset(6, 4)
 	markerIcon.BackgroundTransparency = 1
 	markerIcon.Text = "📍"
 	markerIcon.Font = Enum.Font.GothamBold
-	markerIcon.TextSize = 24
+	markerIcon.TextSize = 20
 	markerIcon.ZIndex = 2
 	
 	local markerNameLabel = Instance.new("TextLabel", billboardFrame)
-	markerNameLabel.Size = UDim2.fromOffset(130, 28)
-	markerNameLabel.Position = UDim2.fromOffset(44, 6)
+	markerNameLabel.Size = UDim2.fromOffset(120, 24)
+	markerNameLabel.Position = UDim2.fromOffset(36, 4)
 	markerNameLabel.BackgroundTransparency = 1
 	markerNameLabel.Text = name
 	markerNameLabel.Font = Enum.Font.GothamBold
-	markerNameLabel.TextSize = 15
+	markerNameLabel.TextSize = 14
 	markerNameLabel.TextColor3 = COLORS.TEXT
 	markerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
 	markerNameLabel.TextTruncate = Enum.TextTruncate.AtEnd
 	markerNameLabel.ZIndex = 2
 	
 	local distanceLabel = Instance.new("TextLabel", billboardFrame)
-	distanceLabel.Size = UDim2.fromOffset(165, 22)
-	distanceLabel.Position = UDim2.fromOffset(8, 40)
+	distanceLabel.Size = UDim2.fromOffset(150, 20)
+	distanceLabel.Position = UDim2.fromOffset(6, 34)
 	distanceLabel.BackgroundTransparency = 1
 	distanceLabel.Text = "0m away"
 	distanceLabel.Font = Enum.Font.Gotham
-	distanceLabel.TextSize = 12
+	distanceLabel.TextSize = 11
 	distanceLabel.TextColor3 = COLORS.SUCCESS_GLOW
 	distanceLabel.TextXAlignment = Enum.TextXAlignment.Left
 	distanceLabel.ZIndex = 2
@@ -3793,51 +3754,24 @@ local function createMarker(name, position)
 		end
 	end)
 	
-	-- Pulsing animations
+	-- Simple pulsing animation
 	spawn(function()
 		while beam and beam.Parent do
 			TweenService:Create(beam, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				Transparency = 0.25
-			}):Play()
-			TweenService:Create(innerBeam, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				Transparency = 0.05
-			}):Play()
-			TweenService:Create(glowRing, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				Transparency = 0.3,
-				Size = Vector3.new(4, 0.2, 4)
-			}):Play()
-			TweenService:Create(light, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				Brightness = 5
-			}):Play()
-			task.wait(2)
-			if not beam or not beam.Parent then break end
-			TweenService:Create(beam, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				Transparency = 0.4
-			}):Play()
-			TweenService:Create(innerBeam, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				Transparency = 0.2
-			}):Play()
-			TweenService:Create(glowRing, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				Transparency = 0.5,
-				Size = Vector3.new(3.5, 0.2, 3.5)
+				Transparency = 0.3
 			}):Play()
 			TweenService:Create(light, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
 				Brightness = 4
 			}):Play()
 			task.wait(2)
-		end
-	end)
-	
-	-- Rotating animation
-	spawn(function()
-		while beam and beam.Parent do
-			TweenService:Create(beam, TweenInfo.new(8, Enum.EasingStyle.Linear), {
-				CFrame = beam.CFrame * CFrame.Angles(0, math.rad(360), 0)
+			if not beam or not beam.Parent then break end
+			TweenService:Create(beam, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				Transparency = 0.5
 			}):Play()
-			TweenService:Create(innerBeam, TweenInfo.new(6, Enum.EasingStyle.Linear), {
-				CFrame = innerBeam.CFrame * CFrame.Angles(0, math.rad(-360), 0)
+			TweenService:Create(light, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				Brightness = 3
 			}):Play()
-			task.wait(8)
+			task.wait(2)
 		end
 	end)
 	
@@ -3911,6 +3845,107 @@ local function teleportToPosition(position)
 	return true
 end
 
+-- Cycle to next marker
+local function cycleToNextMarker()
+	if #markers == 0 then
+		warn("⚠️ No markers to cycle to!")
+		return false
+	end
+	
+	currentMarkerIndex = currentMarkerIndex + 1
+	
+	if currentMarkerIndex > #markers then
+		currentMarkerIndex = 1
+	end
+	
+	local marker = markers[currentMarkerIndex]
+	if marker then
+		local success = teleportToPosition(marker.position)
+		if success then
+			print(string.format("🔄 Cycled to marker %d: %s", currentMarkerIndex, marker.name))
+		end
+		return success
+	end
+	
+	return false
+end
+
+-- Auto cycle through all markers when holding
+local function startAutoCycle()
+	if isHoldingCycle then return end
+	if #markers == 0 then return end
+	
+	isHoldingCycle = true
+	
+	spawn(function()
+		while isHoldingCycle do
+			cycleToNextMarker()
+			task.wait(0.2) -- 0.2 second delay between teleports
+		end
+	end)
+end
+
+local function stopAutoCycle()
+	isHoldingCycle = false
+end
+
+-- Save cycle hotkey
+local function saveCycleHotkey(keyCode)
+	pcall(function()
+		if writefile then
+			writefile("DuckyHub_CycleHotkey.txt", keyCode.Name)
+			print("💾 Cycle hotkey saved: " .. keyCode.Name)
+		end
+	end)
+end
+
+-- Load cycle hotkey
+local function loadCycleHotkey()
+	pcall(function()
+		if readfile and isfile and isfile("DuckyHub_CycleHotkey.txt") then
+			local savedKey = readfile("DuckyHub_CycleHotkey.txt")
+			local keyCode = Enum.KeyCode[savedKey]
+			if keyCode then
+				cycleHotkey = keyCode
+				print("🔑 Loaded cycle hotkey: " .. savedKey)
+			end
+		end
+	end)
+end
+
+-- Hotkey listener for cycling
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed or configuringCycleHotkey then return end
+	
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		if input.KeyCode == cycleHotkey then
+			cycleToNextMarker()
+		end
+	end
+end)
+
+-- Hold detection
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed or configuringCycleHotkey then return end
+	
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		if input.KeyCode == cycleHotkey then
+			task.wait(0.3) -- Hold threshold
+			if UserInputService:IsKeyDown(cycleHotkey) then
+				startAutoCycle()
+			end
+		end
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		if input.KeyCode == cycleHotkey then
+			stopAutoCycle()
+		end
+	end
+end)
+
 -- Delete a marker with effect
 local function deleteMarker(index)
 	if markers[index] then
@@ -3918,13 +3953,13 @@ local function deleteMarker(index)
 		
 		-- Death animation
 		if marker.container and marker.container.Parent then
-			local crystal = marker.container:FindFirstChild("Part")
+			local beam = marker.container:FindFirstChild("Beam")
 			
 			-- Explosion effect
-			if crystal then
+			if beam then
 				local explosion = Instance.new("Part", workspace)
 				explosion.Size = Vector3.new(1, 1, 1)
-				explosion.Position = crystal.Position
+				explosion.Position = beam.Position
 				explosion.Anchored = true
 				explosion.CanCollide = false
 				explosion.Material = Enum.Material.Neon
@@ -3954,6 +3989,12 @@ local function deleteMarker(index)
 		end
 		
 		table.remove(markers, index)
+		
+		-- Reset cycle index if needed
+		if currentMarkerIndex > #markers then
+			currentMarkerIndex = 0
+		end
+		
 		print(string.format("🗑️ Marker deleted: %s", marker.name))
 		
 		-- Update counter without recreating menu
@@ -4139,6 +4180,7 @@ local function refreshMarkerList()
 		tpBtn.MouseButton1Click:Connect(function()
 			local success = teleportToPosition(marker.position)
 			if success then
+				currentMarkerIndex = i -- Update cycle index
 				tpBtn.Text = "✓ DONE"
 				TweenService:Create(tpBtn, ANIM.BOUNCE, {BackgroundColor3 = Color3.fromRGB(120, 255, 120)}):Play()
 				task.wait(1.2)
@@ -4526,7 +4568,407 @@ local function createMarkerMenu()
 	}):Play()
 end
 
--- Create TP Steal card in Steal section
+-- Create hotkey config menu
+local function createHotkeyConfigMenu()
+	if hotkeyConfigMenu then hotkeyConfigMenu:Destroy() end
+	
+	hotkeyConfigMenu = Instance.new("Frame", gui)
+	hotkeyConfigMenu.Size = UDim2.fromOffset(0, 500)
+	hotkeyConfigMenu.Position = UDim2.new(1, 50, 0.5, -250)
+	hotkeyConfigMenu.BackgroundColor3 = COLORS.BG_GLASS
+	hotkeyConfigMenu.BackgroundTransparency = 0.12
+	hotkeyConfigMenu.BorderSizePixel = 0
+	hotkeyConfigMenu.ClipsDescendants = true
+	hotkeyConfigMenu.Active = true
+	hotkeyConfigMenu.ZIndex = 100
+	
+	local menuCorner = Instance.new("UICorner", hotkeyConfigMenu)
+	menuCorner.CornerRadius = UDim.new(0, 24)
+	
+	local menuStroke = Instance.new("UIStroke", hotkeyConfigMenu)
+	menuStroke.Color = COLORS.ACCENT
+	menuStroke.Thickness = 2.5
+	menuStroke.Transparency = 0.2
+	
+	-- Menu glow
+	local menuGlow = Instance.new("ImageLabel", hotkeyConfigMenu)
+	menuGlow.Size = UDim2.fromScale(1.04, 1.04)
+	menuGlow.Position = UDim2.fromScale(0.5, 0.5)
+	menuGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+	menuGlow.BackgroundTransparency = 1
+	menuGlow.Image = "rbxassetid://5028857084"
+	menuGlow.ImageColor3 = COLORS.ACCENT
+	menuGlow.ImageTransparency = 0.4
+	menuGlow.ScaleType = Enum.ScaleType.Slice
+	menuGlow.SliceCenter = Rect.new(24, 24, 276, 276)
+	menuGlow.ZIndex = 99
+	
+	-- Pulsing glow
+	spawn(function()
+		while hotkeyConfigMenu and hotkeyConfigMenu.Parent do
+			TweenService:Create(menuGlow, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				ImageTransparency = 0.6,
+				ImageColor3 = COLORS.PRIMARY_GLOW
+			}):Play()
+			task.wait(2)
+			if not hotkeyConfigMenu or not hotkeyConfigMenu.Parent then break end
+			TweenService:Create(menuGlow, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				ImageTransparency = 0.4,
+				ImageColor3 = COLORS.ACCENT
+			}):Play()
+			task.wait(2)
+		end
+	end)
+	
+	-- Draggable
+	local dragging, dragStart, startPos
+	
+	hotkeyConfigMenu.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = hotkeyConfigMenu.Position
+			
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+	
+	UserInputService.InputChanged:Connect(function(input)
+		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+			local delta = input.Position - dragStart
+			hotkeyConfigMenu.Position = UDim2.new(
+				startPos.X.Scale, startPos.X.Offset + delta.X,
+				startPos.Y.Scale, startPos.Y.Offset + delta.Y
+			)
+		end
+	end)
+	
+	-- Header
+	local header = Instance.new("Frame", hotkeyConfigMenu)
+	header.Size = UDim2.fromOffset(360, 100)
+	header.BackgroundColor3 = COLORS.BG_CARD
+	header.BackgroundTransparency = 0.25
+	header.BorderSizePixel = 0
+	header.ZIndex = 102
+	
+	local headerCorner = Instance.new("UICorner", header)
+	headerCorner.CornerRadius = UDim.new(0, 24)
+	
+	-- Header gradient
+	local headerGrad = Instance.new("Frame", header)
+	headerGrad.Size = UDim2.fromScale(1, 0.6)
+	headerGrad.BackgroundColor3 = COLORS.PRIMARY_GLOW
+	headerGrad.BackgroundTransparency = 0.88
+	headerGrad.BorderSizePixel = 0
+	
+	local headerGradCorner = Instance.new("UICorner", headerGrad)
+	headerGradCorner.CornerRadius = UDim.new(0, 24)
+	
+	local headerGradGrad = Instance.new("UIGradient", headerGrad)
+	headerGradGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(1, 1)
+	})
+	headerGradGrad.Rotation = 90
+	
+	local headerIcon = Instance.new("TextLabel", header)
+	headerIcon.Size = UDim2.fromOffset(60, 60)
+	headerIcon.Position = UDim2.fromOffset(150, 10)
+	headerIcon.BackgroundTransparency = 1
+	headerIcon.Text = "🔄"
+	headerIcon.Font = Enum.Font.GothamBold
+	headerIcon.TextSize = 48
+	headerIcon.ZIndex = 103
+	
+	local headerTitle = Instance.new("TextLabel", header)
+	headerTitle.Size = UDim2.fromOffset(340, 24)
+	headerTitle.Position = UDim2.fromOffset(10, 70)
+	headerTitle.BackgroundTransparency = 1
+	headerTitle.Text = "HOTKEY CYCLE CONFIG"
+	headerTitle.Font = Enum.Font.GothamBold
+	headerTitle.TextSize = 18
+	headerTitle.TextColor3 = COLORS.TEXT
+	headerTitle.ZIndex = 103
+	
+	-- Content
+	local content = Instance.new("Frame", hotkeyConfigMenu)
+	content.Size = UDim2.fromOffset(340, 380)
+	content.Position = UDim2.fromOffset(10, 110)
+	content.BackgroundTransparency = 1
+	content.ZIndex = 102
+	
+	-- Current hotkey display
+	local currentContainer = Instance.new("Frame", content)
+	currentContainer.Size = UDim2.fromOffset(340, 100)
+	currentContainer.BackgroundColor3 = COLORS.BG_CARD
+	currentContainer.BackgroundTransparency = 0.3
+	currentContainer.BorderSizePixel = 0
+	currentContainer.ZIndex = 103
+	
+	local currentCorner = Instance.new("UICorner", currentContainer)
+	currentCorner.CornerRadius = UDim.new(0, 16)
+	
+	local currentStroke = Instance.new("UIStroke", currentContainer)
+	currentStroke.Color = COLORS.PRIMARY
+	currentStroke.Thickness = 2
+	currentStroke.Transparency = 0.6
+	
+	local currentLabel = Instance.new("TextLabel", currentContainer)
+	currentLabel.Size = UDim2.fromOffset(320, 24)
+	currentLabel.Position = UDim2.fromOffset(10, 12)
+	currentLabel.BackgroundTransparency = 1
+	currentLabel.Text = "🔑 CURRENT CYCLE HOTKEY"
+	currentLabel.Font = Enum.Font.GothamBold
+	currentLabel.TextSize = 14
+	currentLabel.TextColor3 = COLORS.TEXT_MUTED
+	currentLabel.ZIndex = 104
+	
+	local hotkeyDisplay = Instance.new("Frame", currentContainer)
+	hotkeyDisplay.Size = UDim2.fromOffset(320, 50)
+	hotkeyDisplay.Position = UDim2.fromOffset(10, 42)
+	hotkeyDisplay.BackgroundColor3 = COLORS.BG_GLASS
+	hotkeyDisplay.BackgroundTransparency = 0.2
+	hotkeyDisplay.BorderSizePixel = 0
+	hotkeyDisplay.ZIndex = 104
+	
+	local displayCorner = Instance.new("UICorner", hotkeyDisplay)
+	displayCorner.CornerRadius = UDim.new(0, 12)
+	
+	local displayStroke = Instance.new("UIStroke", hotkeyDisplay)
+	displayStroke.Color = COLORS.ACCENT
+	displayStroke.Thickness = 2.5
+	displayStroke.Transparency = 0.3
+	
+	local hotkeyText = Instance.new("TextLabel", hotkeyDisplay)
+	hotkeyText.Size = UDim2.fromScale(1, 1)
+	hotkeyText.BackgroundTransparency = 1
+	hotkeyText.Text = cycleHotkey.Name
+	hotkeyText.Font = Enum.Font.GothamBold
+	hotkeyText.TextSize = 22
+	hotkeyText.TextColor3 = COLORS.ACCENT
+	hotkeyText.ZIndex = 105
+	
+	-- Pulsing text
+	spawn(function()
+		while hotkeyConfigMenu and hotkeyConfigMenu.Parent and hotkeyText.Parent do
+			TweenService:Create(hotkeyText, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				TextSize = 24,
+				TextColor3 = COLORS.ACCENT_LIGHT
+			}):Play()
+			task.wait(1.5)
+			if not hotkeyConfigMenu or not hotkeyConfigMenu.Parent then break end
+			TweenService:Create(hotkeyText, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				TextSize = 22,
+				TextColor3 = COLORS.ACCENT
+			}):Play()
+			task.wait(1.5)
+		end
+	end)
+	
+	-- Change hotkey button
+	local changeBtn = Instance.new("TextButton", content)
+	changeBtn.Size = UDim2.fromOffset(340, 60)
+	changeBtn.Position = UDim2.fromOffset(0, 120)
+	changeBtn.BackgroundColor3 = COLORS.PRIMARY
+	changeBtn.BackgroundTransparency = 0.1
+	changeBtn.Text = "🔄 CHANGE HOTKEY"
+	changeBtn.Font = Enum.Font.GothamBold
+	changeBtn.TextSize = 16
+	changeBtn.TextColor3 = COLORS.TEXT
+	changeBtn.BorderSizePixel = 0
+	changeBtn.AutoButtonColor = false
+	changeBtn.ZIndex = 103
+	
+	local changeBtnCorner = Instance.new("UICorner", changeBtn)
+	changeBtnCorner.CornerRadius = UDim.new(0, 14)
+	
+	local changeBtnStroke = Instance.new("UIStroke", changeBtn)
+	changeBtnStroke.Color = COLORS.PRIMARY
+	changeBtnStroke.Thickness = 2.5
+	changeBtnStroke.Transparency = 0.3
+	
+	-- Button glow
+	local btnGlow = Instance.new("ImageLabel", changeBtn)
+	btnGlow.Size = UDim2.fromScale(1.05, 1.05)
+	btnGlow.Position = UDim2.fromScale(0.5, 0.5)
+	btnGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+	btnGlow.BackgroundTransparency = 1
+	btnGlow.Image = "rbxassetid://5028857084"
+	btnGlow.ImageColor3 = COLORS.PRIMARY
+	btnGlow.ImageTransparency = 1
+	btnGlow.ScaleType = Enum.ScaleType.Slice
+	btnGlow.SliceCenter = Rect.new(24, 24, 276, 276)
+	btnGlow.ZIndex = 102
+	
+	changeBtn.MouseEnter:Connect(function()
+		TweenService:Create(changeBtn, ANIM.SMOOTH, {
+			BackgroundTransparency = 0,
+			Size = UDim2.fromOffset(345, 64)
+		}):Play()
+		TweenService:Create(changeBtnStroke, ANIM.SMOOTH, {
+			Transparency = 0.1,
+			Color = COLORS.ACCENT
+		}):Play()
+		TweenService:Create(btnGlow, ANIM.SMOOTH, {ImageTransparency = 0.4}):Play()
+	end)
+	
+	changeBtn.MouseLeave:Connect(function()
+		if not configuringCycleHotkey then
+			TweenService:Create(changeBtn, ANIM.SMOOTH, {
+				BackgroundTransparency = 0.1,
+				Size = UDim2.fromOffset(340, 60)
+			}):Play()
+			TweenService:Create(changeBtnStroke, ANIM.SMOOTH, {
+				Transparency = 0.3,
+				Color = COLORS.PRIMARY
+			}):Play()
+			TweenService:Create(btnGlow, ANIM.SMOOTH, {ImageTransparency = 1}):Play()
+		end
+	end)
+	
+	changeBtn.MouseButton1Click:Connect(function()
+		if configuringCycleHotkey then return end
+		
+		configuringCycleHotkey = true
+		changeBtn.Text = "⌛ PRESS ANY KEY..."
+		TweenService:Create(changeBtn, ANIM.SMOOTH, {BackgroundColor3 = COLORS.WARNING}):Play()
+		TweenService:Create(changeBtnStroke, ANIM.SMOOTH, {Color = COLORS.WARNING}):Play()
+		
+		local connection
+		connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+			if input.UserInputType == Enum.UserInputType.Keyboard then
+				local keyCode = input.KeyCode
+				
+				-- Ignore system keys
+				if keyCode ~= Enum.KeyCode.Unknown and 
+				   keyCode ~= Enum.KeyCode.LeftShift and 
+				   keyCode ~= Enum.KeyCode.RightShift and
+				   keyCode ~= Enum.KeyCode.LeftControl and
+				   keyCode ~= Enum.KeyCode.RightControl and
+				   keyCode ~= Enum.KeyCode.LeftAlt and
+				   keyCode ~= Enum.KeyCode.RightAlt then
+					
+					cycleHotkey = keyCode
+					hotkeyText.Text = keyCode.Name
+					saveCycleHotkey(keyCode)
+					
+					changeBtn.Text = "✅ HOTKEY UPDATED!"
+					TweenService:Create(changeBtn, ANIM.SMOOTH, {BackgroundColor3 = COLORS.SUCCESS}):Play()
+					TweenService:Create(changeBtnStroke, ANIM.SMOOTH, {Color = COLORS.SUCCESS}):Play()
+					
+					-- Flash animation
+					TweenService:Create(hotkeyDisplay, ANIM.INSTANT, {BackgroundTransparency = 0}):Play()
+					TweenService:Create(displayStroke, ANIM.INSTANT, {Transparency = 0}):Play()
+					task.wait(0.1)
+					TweenService:Create(hotkeyDisplay, ANIM.SMOOTH, {BackgroundTransparency = 0.2}):Play()
+					TweenService:Create(displayStroke, ANIM.SMOOTH, {Transparency = 0.3}):Play()
+					
+					task.wait(1.5)
+					if changeBtn and changeBtn.Parent then
+						changeBtn.Text = "🔄 CHANGE HOTKEY"
+						TweenService:Create(changeBtn, ANIM.SMOOTH, {BackgroundColor3 = COLORS.PRIMARY}):Play()
+						TweenService:Create(changeBtnStroke, ANIM.SMOOTH, {Color = COLORS.PRIMARY}):Play()
+					end
+					
+					configuringCycleHotkey = false
+					connection:Disconnect()
+				end
+			end
+		end)
+	end)
+	
+	-- Info cards
+	local infoCard1 = Instance.new("Frame", content)
+	infoCard1.Size = UDim2.fromOffset(340, 90)
+	infoCard1.Position = UDim2.fromOffset(0, 195)
+	infoCard1.BackgroundColor3 = COLORS.BG_CARD
+	infoCard1.BackgroundTransparency = 0.3
+	infoCard1.BorderSizePixel = 0
+	infoCard1.ZIndex = 103
+	
+	local info1Corner = Instance.new("UICorner", infoCard1)
+	info1Corner.CornerRadius = UDim.new(0, 14)
+	
+	local info1Stroke = Instance.new("UIStroke", infoCard1)
+	info1Stroke.Color = COLORS.SUCCESS
+	info1Stroke.Thickness = 2
+	info1Stroke.Transparency = 0.6
+	
+	local info1Icon = Instance.new("TextLabel", infoCard1)
+	info1Icon.Size = UDim2.fromOffset(32, 32)
+	info1Icon.Position = UDim2.fromOffset(10, 8)
+	info1Icon.BackgroundTransparency = 1
+	info1Icon.Text = "👆"
+	info1Icon.Font = Enum.Font.GothamBold
+	info1Icon.TextSize = 24
+	info1Icon.ZIndex = 104
+	
+	local info1Text = Instance.new("TextLabel", infoCard1)
+	info1Text.Size = UDim2.fromOffset(290, 70)
+	info1Text.Position = UDim2.fromOffset(45, 10)
+	info1Text.BackgroundTransparency = 1
+	info1Text.Text = "SINGLE PRESS\nCycles to next marker in order (1→2→3...→1)"
+	info1Text.Font = Enum.Font.Gotham
+	info1Text.TextSize = 12
+	info1Text.TextColor3 = COLORS.TEXT_MUTED
+	info1Text.TextWrapped = true
+	info1Text.TextXAlignment = Enum.TextXAlignment.Left
+	info1Text.TextYAlignment = Enum.TextYAlignment.Top
+	info1Text.ZIndex = 104
+	
+	local infoCard2 = Instance.new("Frame", content)
+	infoCard2.Size = UDim2.fromOffset(340, 90)
+	infoCard2.Position = UDim2.fromOffset(0, 295)
+	infoCard2.BackgroundColor3 = COLORS.BG_CARD
+	infoCard2.BackgroundTransparency = 0.3
+	infoCard2.BorderSizePixel = 0
+	infoCard2.ZIndex = 103
+	
+	local info2Corner = Instance.new("UICorner", infoCard2)
+	info2Corner.CornerRadius = UDim.new(0, 14)
+	
+	local info2Stroke = Instance.new("UIStroke", infoCard2)
+	info2Stroke.Color = COLORS.ACCENT
+	info2Stroke.Thickness = 2
+	info2Stroke.Transparency = 0.6
+	
+	local info2Icon = Instance.new("TextLabel", infoCard2)
+	info2Icon.Size = UDim2.fromOffset(32, 32)
+	info2Icon.Position = UDim2.fromOffset(10, 8)
+	info2Icon.BackgroundTransparency = 1
+	info2Icon.Text = "✊"
+	info2Icon.Font = Enum.Font.GothamBold
+	info2Icon.TextSize = 24
+	info2Icon.ZIndex = 104
+	
+	local info2Text = Instance.new("TextLabel", infoCard2)
+	info2Text.Size = UDim2.fromOffset(290, 70)
+	info2Text.Position = UDim2.fromOffset(45, 10)
+	info2Text.BackgroundTransparency = 1
+	info2Text.Text = "HOLD KEY\nAuto-cycles through ALL markers continuously (0.2s delay)"
+	info2Text.Font = Enum.Font.Gotham
+	info2Text.TextSize = 12
+	info2Text.TextColor3 = COLORS.TEXT_MUTED
+	info2Text.TextWrapped = true
+	info2Text.TextXAlignment = Enum.TextXAlignment.Left
+	info2Text.TextYAlignment = Enum.TextYAlignment.Top
+	info2Text.ZIndex = 104
+	
+	-- Animate open
+	TweenService:Create(hotkeyConfigMenu, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Size = UDim2.fromOffset(360, 500),
+		Position = UDim2.new(1, -380, 0.5, -250)
+	}):Play()
+end
+
+-- Load saved hotkey on startup
+loadCycleHotkey()
+
+-- Create TP Steal cards in Steal section
 local tpStealCard, tpStealBtn = createActionCard(
 	"TP MARKERS",
 	"Place markers anywhere and teleport instantly (Max 10)",
@@ -4555,5 +4997,33 @@ local tpStealCard, tpStealBtn = createActionCard(
 	end
 )
 
-print("✅ TP Steal section added - ULTRA PREMIUM EDITION!")
-print("📍 Features: Ground-locked markers, auto-naming, no menu refresh, 10000% better visuals!")
+local hotkeyCard, hotkeyBtn = createActionCard(
+	"HOTKEY CYCLE",
+	"Configure hotkey to cycle through markers (Default: 1)",
+	"🔄",
+	stealContent,
+	function(btn)
+		if hotkeyConfigOpen then
+			if hotkeyConfigMenu then
+				TweenService:Create(hotkeyConfigMenu, ANIM.SMOOTH, {
+					Position = UDim2.new(1, 50, 0.5, -250),
+					Size = UDim2.fromOffset(0, 500)
+				}):Play()
+				task.wait(0.4)
+				hotkeyConfigMenu:Destroy()
+				hotkeyConfigMenu = nil
+			end
+			hotkeyConfigOpen = false
+			btn.Text = "▶"
+		else
+			createHotkeyConfigMenu()
+			hotkeyConfigOpen = true
+			btn.Text = "◀"
+		end
+	end
+)
+
+print("✅ TP Steal section complete - ULTRA PREMIUM WITH HOTKEY CYCLING!")
+print("📍 Features: Simplified beams, hotkey cycling, hold to auto-cycle!")
+print("🔄 Default cycle hotkey: " .. cycleHotkey.Name)
+print("⚡ Hold delay: 0.2s")
