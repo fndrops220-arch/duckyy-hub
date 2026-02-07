@@ -3628,6 +3628,37 @@ local function findGroundPosition(position)
 	end
 end
 
+-- Equip Flying Carpet
+local function equipFlyingCarpet()
+	if not player.Character then return false end
+	local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return false end
+	
+	-- Check if already equipped
+	local currentTool = player.Character:FindFirstChildOfClass("Tool")
+	if currentTool and currentTool.Name == "Flying Carpet" then
+		return true
+	end
+	
+	-- Find Flying Carpet in backpack
+	local carpet = player.Backpack:FindFirstChild("Flying Carpet")
+	if carpet and carpet:IsA("Tool") then
+		humanoid:EquipTool(carpet)
+		task.wait(0.05)
+		return true
+	end
+	
+	-- Also check character in case it's there but not equipped
+	carpet = player.Character:FindFirstChild("Flying Carpet")
+	if carpet and carpet:IsA("Tool") then
+		humanoid:EquipTool(carpet)
+		task.wait(0.05)
+		return true
+	end
+	
+	return false
+end
+
 -- Create a premium beam marker at player position (SIMPLIFIED)
 local function createMarker(name, position)
 	if #markers >= maxMarkers then
@@ -3787,13 +3818,16 @@ local function createMarker(name, position)
 	return true
 end
 
--- Instant teleport with clean effects
+-- Instant teleport with clean effects and Flying Carpet auto-equip
 local function teleportToPosition(position)
 	if not player.Character then return false end
 	local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
 	local hrp = player.Character:FindFirstChild("HumanoidRootPart")
 	
 	if not humanoid or not hrp then return false end
+	
+	-- Auto-equip Flying Carpet
+	equipFlyingCarpet()
 	
 	local startPos = hrp.Position
 	
@@ -3845,17 +3879,20 @@ local function teleportToPosition(position)
 	return true
 end
 
--- Cycle to next marker
+-- Cycle to next marker (ALWAYS FORWARD, RESETS TO 1 AFTER END)
 local function cycleToNextMarker()
 	if #markers == 0 then
 		warn("⚠️ No markers to cycle to!")
 		return false
 	end
 	
+	-- Increment to next marker
 	currentMarkerIndex = currentMarkerIndex + 1
 	
+	-- If we've gone past the end, reset to 1
 	if currentMarkerIndex > #markers then
 		currentMarkerIndex = 1
+		print("🔄 Reached end, resetting to marker 1")
 	end
 	
 	local marker = markers[currentMarkerIndex]
@@ -3870,7 +3907,7 @@ local function cycleToNextMarker()
 	return false
 end
 
--- Auto cycle through all markers when holding
+-- Auto cycle through all markers when holding (goes 1 to end, then stops)
 local function startAutoCycle()
 	if isHoldingCycle then return end
 	if #markers == 0 then return end
@@ -3879,6 +3916,13 @@ local function startAutoCycle()
 	
 	spawn(function()
 		while isHoldingCycle do
+			-- Check if we've reached the last marker
+			if currentMarkerIndex >= #markers then
+				isHoldingCycle = false
+				print("🏁 Reached last marker, stopping cycle")
+				break
+			end
+			
 			cycleToNextMarker()
 			task.wait(0.2) -- 0.2 second delay between teleports
 		end
@@ -4180,7 +4224,9 @@ local function refreshMarkerList()
 		tpBtn.MouseButton1Click:Connect(function()
 			local success = teleportToPosition(marker.position)
 			if success then
-				currentMarkerIndex = i -- Update cycle index
+				-- Set current index to the marker we clicked (minus 1, so next cycle goes to the next one)
+				currentMarkerIndex = i - 1
+				
 				tpBtn.Text = "✓ DONE"
 				TweenService:Create(tpBtn, ANIM.BOUNCE, {BackgroundColor3 = Color3.fromRGB(120, 255, 120)}):Play()
 				task.wait(1.2)
@@ -4420,6 +4466,114 @@ local function createMarkerMenu()
 	headerTitle.TextColor3 = COLORS.TEXT
 	headerTitle.ZIndex = 103
 	
+	-- Tab system
+	local tabContainer = Instance.new("Frame", markerMenu)
+	tabContainer.Size = UDim2.fromOffset(340, 50)
+	tabContainer.Position = UDim2.fromOffset(10, 110)
+	tabContainer.BackgroundTransparency = 1
+	tabContainer.ZIndex = 102
+	
+	local currentTab = "markers"
+	
+	-- Markers Tab
+	local markersTab = Instance.new("TextButton", tabContainer)
+	markersTab.Size = UDim2.fromOffset(165, 50)
+	markersTab.Position = UDim2.fromOffset(0, 0)
+	markersTab.BackgroundColor3 = COLORS.PRIMARY
+	markersTab.BackgroundTransparency = 0.1
+	markersTab.Text = "📍 MARKERS"
+	markersTab.Font = Enum.Font.GothamBold
+	markersTab.TextSize = 15
+	markersTab.TextColor3 = COLORS.TEXT
+	markersTab.BorderSizePixel = 0
+	markersTab.AutoButtonColor = false
+	markersTab.ZIndex = 103
+	
+	local markersTabCorner = Instance.new("UICorner", markersTab)
+	markersTabCorner.CornerRadius = UDim.new(0, 12)
+	
+	local markersTabStroke = Instance.new("UIStroke", markersTab)
+	markersTabStroke.Color = COLORS.ACCENT
+	markersTabStroke.Thickness = 2.5
+	markersTabStroke.Transparency = 0.2
+	
+	-- Hotkey Tab
+	local hotkeyTab = Instance.new("TextButton", tabContainer)
+	hotkeyTab.Size = UDim2.fromOffset(165, 50)
+	hotkeyTab.Position = UDim2.fromOffset(175, 0)
+	hotkeyTab.BackgroundColor3 = COLORS.BG_CARD
+	hotkeyTab.BackgroundTransparency = 0.4
+	hotkeyTab.Text = "🔄 HOTKEY"
+	hotkeyTab.Font = Enum.Font.GothamBold
+	hotkeyTab.TextSize = 15
+	hotkeyTab.TextColor3 = COLORS.TEXT_MUTED
+	hotkeyTab.BorderSizePixel = 0
+	hotkeyTab.AutoButtonColor = false
+	hotkeyTab.ZIndex = 103
+	
+	local hotkeyTabCorner = Instance.new("UICorner", hotkeyTab)
+	hotkeyTabCorner.CornerRadius = UDim.new(0, 12)
+	
+	local hotkeyTabStroke = Instance.new("UIStroke", hotkeyTab)
+	hotkeyTabStroke.Color = COLORS.PRIMARY
+	hotkeyTabStroke.Thickness = 2
+	hotkeyTabStroke.Transparency = 0.6
+	
+	-- Markers content frame
+	local markersContent = Instance.new("Frame", markerMenu)
+	markersContent.Size = UDim2.fromOffset(340, 470)
+	markersContent.Position = UDim2.fromOffset(10, 172)
+	markersContent.BackgroundTransparency = 1
+	markersContent.Visible = true
+	markersContent.ZIndex = 102
+	
+	-- Hotkey config frame
+	local hotkeyContent = Instance.new("Frame", markerMenu)
+	hotkeyContent.Size = UDim2.fromOffset(340, 470)
+	hotkeyContent.Position = UDim2.fromOffset(10, 172)
+	hotkeyContent.BackgroundTransparency = 1
+	hotkeyContent.Visible = false
+	hotkeyContent.ZIndex = 102
+	
+	-- Tab switching logic
+	local function switchTab(tab)
+		if tab == "markers" then
+			currentTab = "markers"
+			markersContent.Visible = true
+			hotkeyContent.Visible = false
+			
+			-- Update tab appearance
+			TweenService:Create(markersTab, ANIM.SMOOTH, {BackgroundTransparency = 0.1, BackgroundColor3 = COLORS.PRIMARY}):Play()
+			TweenService:Create(markersTabStroke, ANIM.SMOOTH, {Transparency = 0.2, Color = COLORS.ACCENT}):Play()
+			markersTab.TextColor3 = COLORS.TEXT
+			
+			TweenService:Create(hotkeyTab, ANIM.SMOOTH, {BackgroundTransparency = 0.4, BackgroundColor3 = COLORS.BG_CARD}):Play()
+			TweenService:Create(hotkeyTabStroke, ANIM.SMOOTH, {Transparency = 0.6, Color = COLORS.PRIMARY}):Play()
+			hotkeyTab.TextColor3 = COLORS.TEXT_MUTED
+		else
+			currentTab = "hotkey"
+			markersContent.Visible = false
+			hotkeyContent.Visible = true
+			
+			-- Update tab appearance
+			TweenService:Create(hotkeyTab, ANIM.SMOOTH, {BackgroundTransparency = 0.1, BackgroundColor3 = COLORS.PRIMARY}):Play()
+			TweenService:Create(hotkeyTabStroke, ANIM.SMOOTH, {Transparency = 0.2, Color = COLORS.ACCENT}):Play()
+			hotkeyTab.TextColor3 = COLORS.TEXT
+			
+			TweenService:Create(markersTab, ANIM.SMOOTH, {BackgroundTransparency = 0.4, BackgroundColor3 = COLORS.BG_CARD}):Play()
+			TweenService:Create(markersTabStroke, ANIM.SMOOTH, {Transparency = 0.6, Color = COLORS.PRIMARY}):Play()
+			markersTab.TextColor3 = COLORS.TEXT_MUTED
+		end
+	end
+	
+	markersTab.MouseButton1Click:Connect(function()
+		switchTab("markers")
+	end)
+	
+	hotkeyTab.MouseButton1Click:Connect(function()
+		switchTab("hotkey")
+	end)
+	
 	-- Counter badge
 	local counterBadge = Instance.new("Frame", header)
 	counterBadge.Size = UDim2.fromOffset(70, 32)
@@ -4446,10 +4600,10 @@ local function createMarkerMenu()
 	counterText.TextColor3 = COLORS.TEXT
 	counterText.ZIndex = 104
 	
-	-- Quick place button (no name input)
-	local placeBtn = Instance.new("TextButton", markerMenu)
+	-- Quick place button (inside markers content)
+	local placeBtn = Instance.new("TextButton", markersContent)
 	placeBtn.Size = UDim2.fromOffset(340, 56)
-	placeBtn.Position = UDim2.fromOffset(10, 110)
+	placeBtn.Position = UDim2.fromOffset(0, 0)
 	placeBtn.BackgroundColor3 = COLORS.PRIMARY
 	placeBtn.BackgroundTransparency = 0.1
 	placeBtn.Text = "📍 PLACE MARKER HERE"
@@ -4527,9 +4681,9 @@ local function createMarkerMenu()
 	end)
 	
 	-- Marker list
-	markerListFrame = Instance.new("ScrollingFrame", markerMenu)
-	markerListFrame.Size = UDim2.fromOffset(340, 470)
-	markerListFrame.Position = UDim2.fromOffset(10, 172)
+	markerListFrame = Instance.new("ScrollingFrame", markersContent)
+	markerListFrame.Size = UDim2.fromOffset(340, 400)
+	markerListFrame.Position = UDim2.fromOffset(0, 66)
 	markerListFrame.BackgroundColor3 = COLORS.BG_CARD
 	markerListFrame.BackgroundTransparency = 0.3
 	markerListFrame.BorderSizePixel = 0
@@ -4561,149 +4715,11 @@ local function createMarkerMenu()
 	-- Initial list population
 	refreshMarkerList()
 	
-	-- Animate open
-	TweenService:Create(markerMenu, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-		Size = UDim2.fromOffset(360, 650),
-		Position = UDim2.new(1, -380, 0.5, -325)
-	}):Play()
-end
-
--- Create hotkey config menu
-local function createHotkeyConfigMenu()
-	if hotkeyConfigMenu then hotkeyConfigMenu:Destroy() end
-	
-	hotkeyConfigMenu = Instance.new("Frame", gui)
-	hotkeyConfigMenu.Size = UDim2.fromOffset(0, 500)
-	hotkeyConfigMenu.Position = UDim2.new(1, 50, 0.5, -250)
-	hotkeyConfigMenu.BackgroundColor3 = COLORS.BG_GLASS
-	hotkeyConfigMenu.BackgroundTransparency = 0.12
-	hotkeyConfigMenu.BorderSizePixel = 0
-	hotkeyConfigMenu.ClipsDescendants = true
-	hotkeyConfigMenu.Active = true
-	hotkeyConfigMenu.ZIndex = 100
-	
-	local menuCorner = Instance.new("UICorner", hotkeyConfigMenu)
-	menuCorner.CornerRadius = UDim.new(0, 24)
-	
-	local menuStroke = Instance.new("UIStroke", hotkeyConfigMenu)
-	menuStroke.Color = COLORS.ACCENT
-	menuStroke.Thickness = 2.5
-	menuStroke.Transparency = 0.2
-	
-	-- Menu glow
-	local menuGlow = Instance.new("ImageLabel", hotkeyConfigMenu)
-	menuGlow.Size = UDim2.fromScale(1.04, 1.04)
-	menuGlow.Position = UDim2.fromScale(0.5, 0.5)
-	menuGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-	menuGlow.BackgroundTransparency = 1
-	menuGlow.Image = "rbxassetid://5028857084"
-	menuGlow.ImageColor3 = COLORS.ACCENT
-	menuGlow.ImageTransparency = 0.4
-	menuGlow.ScaleType = Enum.ScaleType.Slice
-	menuGlow.SliceCenter = Rect.new(24, 24, 276, 276)
-	menuGlow.ZIndex = 99
-	
-	-- Pulsing glow
-	spawn(function()
-		while hotkeyConfigMenu and hotkeyConfigMenu.Parent do
-			TweenService:Create(menuGlow, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				ImageTransparency = 0.6,
-				ImageColor3 = COLORS.PRIMARY_GLOW
-			}):Play()
-			task.wait(2)
-			if not hotkeyConfigMenu or not hotkeyConfigMenu.Parent then break end
-			TweenService:Create(menuGlow, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				ImageTransparency = 0.4,
-				ImageColor3 = COLORS.ACCENT
-			}):Play()
-			task.wait(2)
-		end
-	end)
-	
-	-- Draggable
-	local dragging, dragStart, startPos
-	
-	hotkeyConfigMenu.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
-			dragStart = input.Position
-			startPos = hotkeyConfigMenu.Position
-			
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
-		end
-	end)
-	
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-			local delta = input.Position - dragStart
-			hotkeyConfigMenu.Position = UDim2.new(
-				startPos.X.Scale, startPos.X.Offset + delta.X,
-				startPos.Y.Scale, startPos.Y.Offset + delta.Y
-			)
-		end
-	end)
-	
-	-- Header
-	local header = Instance.new("Frame", hotkeyConfigMenu)
-	header.Size = UDim2.fromOffset(360, 100)
-	header.BackgroundColor3 = COLORS.BG_CARD
-	header.BackgroundTransparency = 0.25
-	header.BorderSizePixel = 0
-	header.ZIndex = 102
-	
-	local headerCorner = Instance.new("UICorner", header)
-	headerCorner.CornerRadius = UDim.new(0, 24)
-	
-	-- Header gradient
-	local headerGrad = Instance.new("Frame", header)
-	headerGrad.Size = UDim2.fromScale(1, 0.6)
-	headerGrad.BackgroundColor3 = COLORS.PRIMARY_GLOW
-	headerGrad.BackgroundTransparency = 0.88
-	headerGrad.BorderSizePixel = 0
-	
-	local headerGradCorner = Instance.new("UICorner", headerGrad)
-	headerGradCorner.CornerRadius = UDim.new(0, 24)
-	
-	local headerGradGrad = Instance.new("UIGradient", headerGrad)
-	headerGradGrad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(1, 1)
-	})
-	headerGradGrad.Rotation = 90
-	
-	local headerIcon = Instance.new("TextLabel", header)
-	headerIcon.Size = UDim2.fromOffset(60, 60)
-	headerIcon.Position = UDim2.fromOffset(150, 10)
-	headerIcon.BackgroundTransparency = 1
-	headerIcon.Text = "🔄"
-	headerIcon.Font = Enum.Font.GothamBold
-	headerIcon.TextSize = 48
-	headerIcon.ZIndex = 103
-	
-	local headerTitle = Instance.new("TextLabel", header)
-	headerTitle.Size = UDim2.fromOffset(340, 24)
-	headerTitle.Position = UDim2.fromOffset(10, 70)
-	headerTitle.BackgroundTransparency = 1
-	headerTitle.Text = "HOTKEY CYCLE CONFIG"
-	headerTitle.Font = Enum.Font.GothamBold
-	headerTitle.TextSize = 18
-	headerTitle.TextColor3 = COLORS.TEXT
-	headerTitle.ZIndex = 103
-	
-	-- Content
-	local content = Instance.new("Frame", hotkeyConfigMenu)
-	content.Size = UDim2.fromOffset(340, 380)
-	content.Position = UDim2.fromOffset(10, 110)
-	content.BackgroundTransparency = 1
-	content.ZIndex = 102
-	
+	-- HOTKEY CONFIG CONTENT (inside hotkeyContent frame)
 	-- Current hotkey display
-	local currentContainer = Instance.new("Frame", content)
+	local currentContainer = Instance.new("Frame", hotkeyContent)
 	currentContainer.Size = UDim2.fromOffset(340, 100)
+	currentContainer.Position = UDim2.fromOffset(0, 0)
 	currentContainer.BackgroundColor3 = COLORS.BG_CARD
 	currentContainer.BackgroundTransparency = 0.3
 	currentContainer.BorderSizePixel = 0
@@ -4754,13 +4770,13 @@ local function createHotkeyConfigMenu()
 	
 	-- Pulsing text
 	spawn(function()
-		while hotkeyConfigMenu and hotkeyConfigMenu.Parent and hotkeyText.Parent do
+		while markerMenu and markerMenu.Parent and hotkeyText.Parent do
 			TweenService:Create(hotkeyText, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
 				TextSize = 24,
 				TextColor3 = COLORS.ACCENT_LIGHT
 			}):Play()
 			task.wait(1.5)
-			if not hotkeyConfigMenu or not hotkeyConfigMenu.Parent then break end
+			if not markerMenu or not markerMenu.Parent then break end
 			TweenService:Create(hotkeyText, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
 				TextSize = 22,
 				TextColor3 = COLORS.ACCENT
@@ -4770,7 +4786,7 @@ local function createHotkeyConfigMenu()
 	end)
 	
 	-- Change hotkey button
-	local changeBtn = Instance.new("TextButton", content)
+	local changeBtn = Instance.new("TextButton", hotkeyContent)
 	changeBtn.Size = UDim2.fromOffset(340, 60)
 	changeBtn.Position = UDim2.fromOffset(0, 120)
 	changeBtn.BackgroundColor3 = COLORS.PRIMARY
@@ -4882,7 +4898,7 @@ local function createHotkeyConfigMenu()
 	end)
 	
 	-- Info cards
-	local infoCard1 = Instance.new("Frame", content)
+	local infoCard1 = Instance.new("Frame", hotkeyContent)
 	infoCard1.Size = UDim2.fromOffset(340, 90)
 	infoCard1.Position = UDim2.fromOffset(0, 195)
 	infoCard1.BackgroundColor3 = COLORS.BG_CARD
@@ -4911,7 +4927,7 @@ local function createHotkeyConfigMenu()
 	info1Text.Size = UDim2.fromOffset(290, 70)
 	info1Text.Position = UDim2.fromOffset(45, 10)
 	info1Text.BackgroundTransparency = 1
-	info1Text.Text = "SINGLE PRESS\nCycles to next marker in order (1→2→3...→1)"
+	info1Text.Text = "SINGLE PRESS\nCycles through markers 1→end"
 	info1Text.Font = Enum.Font.Gotham
 	info1Text.TextSize = 12
 	info1Text.TextColor3 = COLORS.TEXT_MUTED
@@ -4920,7 +4936,7 @@ local function createHotkeyConfigMenu()
 	info1Text.TextYAlignment = Enum.TextYAlignment.Top
 	info1Text.ZIndex = 104
 	
-	local infoCard2 = Instance.new("Frame", content)
+	local infoCard2 = Instance.new("Frame", hotkeyContent)
 	infoCard2.Size = UDim2.fromOffset(340, 90)
 	infoCard2.Position = UDim2.fromOffset(0, 295)
 	infoCard2.BackgroundColor3 = COLORS.BG_CARD
@@ -4949,7 +4965,7 @@ local function createHotkeyConfigMenu()
 	info2Text.Size = UDim2.fromOffset(290, 70)
 	info2Text.Position = UDim2.fromOffset(45, 10)
 	info2Text.BackgroundTransparency = 1
-	info2Text.Text = "HOLD KEY\nAuto-cycles through ALL markers continuously (0.2s delay)"
+	info2Text.Text = "HOLD KEY\nAuto-cycles 1→end, stops at last (0.2s delay)"
 	info2Text.Font = Enum.Font.Gotham
 	info2Text.TextSize = 12
 	info2Text.TextColor3 = COLORS.TEXT_MUTED
@@ -4958,20 +4974,61 @@ local function createHotkeyConfigMenu()
 	info2Text.TextYAlignment = Enum.TextYAlignment.Top
 	info2Text.ZIndex = 104
 	
+	local infoCard3 = Instance.new("Frame", hotkeyContent)
+	infoCard3.Size = UDim2.fromOffset(340, 70)
+	infoCard3.Position = UDim2.fromOffset(0, 395)
+	infoCard3.BackgroundColor3 = COLORS.BG_CARD
+	infoCard3.BackgroundTransparency = 0.3
+	infoCard3.BorderSizePixel = 0
+	infoCard3.ZIndex = 103
+	
+	local info3Corner = Instance.new("UICorner", infoCard3)
+	info3Corner.CornerRadius = UDim.new(0, 14)
+	
+	local info3Stroke = Instance.new("UIStroke", infoCard3)
+	info3Stroke.Color = COLORS.PRIMARY_GLOW
+	info3Stroke.Thickness = 2
+	info3Stroke.Transparency = 0.6
+	
+	local info3Icon = Instance.new("TextLabel", infoCard3)
+	info3Icon.Size = UDim2.fromOffset(32, 32)
+	info3Icon.Position = UDim2.fromOffset(10, 8)
+	info3Icon.BackgroundTransparency = 1
+	info3Icon.Text = "✨"
+	info3Icon.Font = Enum.Font.GothamBold
+	info3Icon.TextSize = 24
+	info3Icon.ZIndex = 104
+	
+	local info3Text = Instance.new("TextLabel", infoCard3)
+	info3Text.Size = UDim2.fromOffset(290, 50)
+	info3Text.Position = UDim2.fromOffset(45, 10)
+	info3Text.BackgroundTransparency = 1
+	info3Text.Text = "BONUS: Flying Carpet auto-equips on TP!"
+	info3Text.Font = Enum.Font.Gotham
+	info3Text.TextSize = 12
+	info3Text.TextColor3 = COLORS.TEXT_MUTED
+	info3Text.TextWrapped = true
+	info3Text.TextXAlignment = Enum.TextXAlignment.Left
+	info3Text.TextYAlignment = Enum.TextYAlignment.Top
+	info3Text.ZIndex = 104
+	
+	-- Initial list population
+	refreshMarkerList()
+	
 	-- Animate open
-	TweenService:Create(hotkeyConfigMenu, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-		Size = UDim2.fromOffset(360, 500),
-		Position = UDim2.new(1, -380, 0.5, -250)
+	TweenService:Create(markerMenu, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Size = UDim2.fromOffset(360, 650),
+		Position = UDim2.new(1, -380, 0.5, -325)
 	}):Play()
 end
 
 -- Load saved hotkey on startup
 loadCycleHotkey()
 
--- Create TP Steal cards in Steal section
+-- Create TP Steal card in Steal section (single card, hotkey is now a tab inside)
 local tpStealCard, tpStealBtn = createActionCard(
 	"TP MARKERS",
-	"Place markers anywhere and teleport instantly (Max 10)",
+	"Place markers, configure hotkey, and teleport instantly",
 	"📍",
 	stealContent,
 	function(btn)
@@ -4997,33 +5054,7 @@ local tpStealCard, tpStealBtn = createActionCard(
 	end
 )
 
-local hotkeyCard, hotkeyBtn = createActionCard(
-	"HOTKEY CYCLE",
-	"Configure hotkey to cycle through markers (Default: 1)",
-	"🔄",
-	stealContent,
-	function(btn)
-		if hotkeyConfigOpen then
-			if hotkeyConfigMenu then
-				TweenService:Create(hotkeyConfigMenu, ANIM.SMOOTH, {
-					Position = UDim2.new(1, 50, 0.5, -250),
-					Size = UDim2.fromOffset(0, 500)
-				}):Play()
-				task.wait(0.4)
-				hotkeyConfigMenu:Destroy()
-				hotkeyConfigMenu = nil
-			end
-			hotkeyConfigOpen = false
-			btn.Text = "▶"
-		else
-			createHotkeyConfigMenu()
-			hotkeyConfigOpen = true
-			btn.Text = "◀"
-		end
-	end
-)
-
-print("✅ TP Steal section complete - ULTRA PREMIUM WITH HOTKEY CYCLING!")
-print("📍 Features: Simplified beams, hotkey cycling, hold to auto-cycle!")
+print("✅ TP Steal section complete - FLYING CARPET AUTO-EQUIP!")
+print("📍 Features: Auto-equips Flying Carpet, always cycles 1→end!")
 print("🔄 Default cycle hotkey: " .. cycleHotkey.Name)
-print("⚡ Hold delay: 0.2s")
+print("⚡ Hold delay: 0.2s | Always goes forward: 1, 2, 3... to end!")
