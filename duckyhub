@@ -2960,3 +2960,480 @@ print("🎨 Enhanced glassmorphism design")
 print("✨ Premium animations and effects")
 print("🌟 All features preserved and enhanced")
 
+--======================
+-- HOTKEY SYSTEM
+--======================
+local currentHotkey = Enum.KeyCode.Tab -- Default hotkey
+local isConfiguringHotkey = false
+local hotkeyMenuOpen = false
+local hotkeyMenu = nil
+
+-- Load saved hotkey
+local function loadHotkey()
+	pcall(function()
+		if readfile and isfile and isfile("DuckyHub_Hotkey.txt") then
+			local savedKey = readfile("DuckyHub_Hotkey.txt")
+			local keyCode = Enum.KeyCode[savedKey]
+			if keyCode then
+				currentHotkey = keyCode
+				print("🔑 Loaded hotkey: " .. savedKey)
+			end
+		end
+	end)
+end
+
+-- Save hotkey
+local function saveHotkey(keyCode)
+	pcall(function()
+		if writefile then
+			writefile("DuckyHub_Hotkey.txt", keyCode.Name)
+			print("💾 Hotkey saved: " .. keyCode.Name)
+		end
+	end)
+end
+
+-- Toggle main menu visibility
+local function toggleMainMenu()
+	if main.Visible then
+		TweenService:Create(main, ANIM.SMOOTH, {
+			Size = UDim2.fromOffset(620, 420),
+			Position = UDim2.new(0.5, -310, 0.5, -210),
+			BackgroundTransparency = 1
+		}):Play()
+		
+		for _, child in pairs(main:GetDescendants()) do
+			pcall(function()
+				if child:IsA("TextLabel") or child:IsA("TextButton") then
+					TweenService:Create(child, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+				elseif child:IsA("Frame") or child:IsA("ImageLabel") then
+					TweenService:Create(child, TweenInfo.new(0.3), {
+						BackgroundTransparency = 1,
+						ImageTransparency = 1
+					}):Play()
+				elseif child:IsA("UIStroke") then
+					TweenService:Create(child, TweenInfo.new(0.3), {Transparency = 1}):Play()
+				end
+			end)
+		end
+		
+		task.wait(0.3)
+		main.Visible = false
+	else
+		main.Visible = true
+		main.Size = UDim2.fromOffset(0, 0)
+		main.Position = UDim2.new(0.5, 0, 0.5, 0)
+		main.BackgroundTransparency = 1
+		
+		TweenService:Create(main, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.fromOffset(720, 480),
+			Position = UDim2.new(0.5, -360, 0.5, -240),
+			BackgroundTransparency = 0.12
+		}):Play()
+		
+		task.wait(0.2)
+		
+		for _, child in pairs(main:GetDescendants()) do
+			pcall(function()
+				if child:IsA("TextLabel") or child:IsA("TextButton") then
+					TweenService:Create(child, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+				elseif child:IsA("Frame") or child:IsA("ImageLabel") then
+					local targetTrans = 1
+					if child.Name == "glassLayer1" then
+						targetTrans = 0.94
+					elseif child.Name == "glassLayer2" then
+						targetTrans = 0.92
+					elseif child.BackgroundColor3 == COLORS.BG_GLASS or child.BackgroundColor3 == COLORS.BG_CARD then
+						targetTrans = 0.3
+					end
+					if targetTrans < 1 then
+						TweenService:Create(child, TweenInfo.new(0.4), {BackgroundTransparency = targetTrans}):Play()
+					end
+				elseif child:IsA("UIStroke") then
+					local targetTrans = 0.65
+					TweenService:Create(child, TweenInfo.new(0.4), {Transparency = targetTrans}):Play()
+				end
+			end)
+		end
+	end
+end
+
+-- Create hotkey configuration menu
+local function createHotkeyMenu()
+	if hotkeyMenu then hotkeyMenu:Destroy() end
+	
+	hotkeyMenu = Instance.new("Frame", gui)
+	hotkeyMenu.Size = UDim2.fromOffset(0, 400)
+	hotkeyMenu.Position = UDim2.new(1, 50, 0.5, -200)
+	hotkeyMenu.BackgroundColor3 = COLORS.BG_GLASS
+	hotkeyMenu.BackgroundTransparency = 0.12
+	hotkeyMenu.BorderSizePixel = 0
+	hotkeyMenu.ClipsDescendants = true
+	hotkeyMenu.Active = true
+	hotkeyMenu.ZIndex = 100
+	
+	local menuCorner = Instance.new("UICorner", hotkeyMenu)
+	menuCorner.CornerRadius = UDim.new(0, 24)
+	
+	local menuStroke = Instance.new("UIStroke", hotkeyMenu)
+	menuStroke.Color = COLORS.ACCENT
+	menuStroke.Thickness = 2
+	menuStroke.Transparency = 0.25
+	
+	-- Menu glow
+	local menuGlow = Instance.new("ImageLabel", hotkeyMenu)
+	menuGlow.Size = UDim2.fromScale(1.02, 1.02)
+	menuGlow.Position = UDim2.fromScale(0.5, 0.5)
+	menuGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+	menuGlow.BackgroundTransparency = 1
+	menuGlow.Image = "rbxassetid://5028857084"
+	menuGlow.ImageColor3 = COLORS.ACCENT
+	menuGlow.ImageTransparency = 0.5
+	menuGlow.ScaleType = Enum.ScaleType.Slice
+	menuGlow.SliceCenter = Rect.new(24, 24, 276, 276)
+	menuGlow.ZIndex = 99
+	
+	-- Pulsing glow animation
+	spawn(function()
+		while hotkeyMenu and hotkeyMenu.Parent do
+			TweenService:Create(menuGlow, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				ImageTransparency = 0.7,
+				ImageColor3 = COLORS.PRIMARY_GLOW
+			}):Play()
+			task.wait(2)
+			if not hotkeyMenu or not hotkeyMenu.Parent then break end
+			TweenService:Create(menuGlow, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				ImageTransparency = 0.5,
+				ImageColor3 = COLORS.ACCENT
+			}):Play()
+			task.wait(2)
+		end
+	end)
+	
+	-- Draggable
+	local dragging, dragStart, startPos
+	
+	hotkeyMenu.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = hotkeyMenu.Position
+			
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+	
+	UserInputService.InputChanged:Connect(function(input)
+		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+			local delta = input.Position - dragStart
+			hotkeyMenu.Position = UDim2.new(
+				startPos.X.Scale, startPos.X.Offset + delta.X,
+				startPos.Y.Scale, startPos.Y.Offset + delta.Y
+			)
+		end
+	end)
+	
+	-- Header
+	local header = Instance.new("Frame", hotkeyMenu)
+	header.Size = UDim2.fromOffset(360, 90)
+	header.BackgroundColor3 = COLORS.BG_CARD
+	header.BackgroundTransparency = 0.3
+	header.BorderSizePixel = 0
+	header.ZIndex = 102
+	
+	local headerCorner = Instance.new("UICorner", header)
+	headerCorner.CornerRadius = UDim.new(0, 24)
+	
+	-- Header gradient
+	local headerGrad = Instance.new("Frame", header)
+	headerGrad.Size = UDim2.fromScale(1, 0.5)
+	headerGrad.BackgroundColor3 = COLORS.ACCENT
+	headerGrad.BackgroundTransparency = 0.9
+	headerGrad.BorderSizePixel = 0
+	
+	local headerGradCorner = Instance.new("UICorner", headerGrad)
+	headerGradCorner.CornerRadius = UDim.new(0, 24)
+	
+	local headerGradGrad = Instance.new("UIGradient", headerGrad)
+	headerGradGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(1, 1)
+	})
+	headerGradGrad.Rotation = 90
+	
+	local headerIcon = Instance.new("TextLabel", header)
+	headerIcon.Size = UDim2.fromOffset(55, 55)
+	headerIcon.Position = UDim2.fromOffset(153, 8)
+	headerIcon.BackgroundTransparency = 1
+	headerIcon.Text = "⌨️"
+	headerIcon.Font = Enum.Font.GothamBold
+	headerIcon.TextSize = 44
+	headerIcon.ZIndex = 103
+	
+	local headerTitle = Instance.new("TextLabel", header)
+	headerTitle.Size = UDim2.fromOffset(340, 22)
+	headerTitle.Position = UDim2.fromOffset(10, 64)
+	headerTitle.BackgroundTransparency = 1
+	headerTitle.Text = "HOTKEY CONFIG"
+	headerTitle.Font = Enum.Font.GothamBold
+	headerTitle.TextSize = 17
+	headerTitle.TextColor3 = COLORS.TEXT
+	headerTitle.ZIndex = 103
+	
+	-- Content
+	local content = Instance.new("Frame", hotkeyMenu)
+	content.Size = UDim2.fromOffset(340, 290)
+	content.Position = UDim2.fromOffset(10, 100)
+	content.BackgroundTransparency = 1
+	content.ZIndex = 102
+	
+	-- Current hotkey display
+	local currentContainer = Instance.new("Frame", content)
+	currentContainer.Size = UDim2.fromOffset(340, 100)
+	currentContainer.BackgroundColor3 = COLORS.BG_CARD
+	currentContainer.BackgroundTransparency = 0.35
+	currentContainer.BorderSizePixel = 0
+	currentContainer.ZIndex = 103
+	
+	local currentCorner = Instance.new("UICorner", currentContainer)
+	currentCorner.CornerRadius = UDim.new(0, 16)
+	
+	local currentStroke = Instance.new("UIStroke", currentContainer)
+	currentStroke.Color = COLORS.PRIMARY
+	currentStroke.Thickness = 1.5
+	currentStroke.Transparency = 0.65
+	
+	local currentLabel = Instance.new("TextLabel", currentContainer)
+	currentLabel.Size = UDim2.fromOffset(320, 24)
+	currentLabel.Position = UDim2.fromOffset(10, 12)
+	currentLabel.BackgroundTransparency = 1
+	currentLabel.Text = "🔑 CURRENT HOTKEY"
+	currentLabel.Font = Enum.Font.GothamBold
+	currentLabel.TextSize = 14
+	currentLabel.TextColor3 = COLORS.TEXT_MUTED
+	currentLabel.ZIndex = 104
+	
+	local hotkeyDisplay = Instance.new("Frame", currentContainer)
+	hotkeyDisplay.Size = UDim2.fromOffset(320, 50)
+	hotkeyDisplay.Position = UDim2.fromOffset(10, 42)
+	hotkeyDisplay.BackgroundColor3 = COLORS.BG_GLASS
+	hotkeyDisplay.BackgroundTransparency = 0.3
+	hotkeyDisplay.BorderSizePixel = 0
+	hotkeyDisplay.ZIndex = 104
+	
+	local displayCorner = Instance.new("UICorner", hotkeyDisplay)
+	displayCorner.CornerRadius = UDim.new(0, 12)
+	
+	local displayStroke = Instance.new("UIStroke", hotkeyDisplay)
+	displayStroke.Color = COLORS.ACCENT
+	displayStroke.Thickness = 2
+	displayStroke.Transparency = 0.4
+	
+	local hotkeyText = Instance.new("TextLabel", hotkeyDisplay)
+	hotkeyText.Size = UDim2.fromScale(1, 1)
+	hotkeyText.BackgroundTransparency = 1
+	hotkeyText.Text = currentHotkey.Name
+	hotkeyText.Font = Enum.Font.GothamBold
+	hotkeyText.TextSize = 22
+	hotkeyText.TextColor3 = COLORS.ACCENT
+	hotkeyText.ZIndex = 105
+	
+	-- Pulsing text animation
+	spawn(function()
+		while hotkeyMenu and hotkeyMenu.Parent and hotkeyText.Parent do
+			TweenService:Create(hotkeyText, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				TextSize = 24,
+				TextColor3 = COLORS.ACCENT_LIGHT
+			}):Play()
+			task.wait(1.5)
+			if not hotkeyMenu or not hotkeyMenu.Parent then break end
+			TweenService:Create(hotkeyText, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+				TextSize = 22,
+				TextColor3 = COLORS.ACCENT
+			}):Play()
+			task.wait(1.5)
+		end
+	end)
+	
+	-- Change hotkey button
+	local changeBtn = Instance.new("TextButton", content)
+	changeBtn.Size = UDim2.fromOffset(340, 60)
+	changeBtn.Position = UDim2.fromOffset(0, 120)
+	changeBtn.BackgroundColor3 = COLORS.PRIMARY
+	changeBtn.BackgroundTransparency = 0.15
+	changeBtn.Text = "🔄 CHANGE HOTKEY"
+	changeBtn.Font = Enum.Font.GothamBold
+	changeBtn.TextSize = 16
+	changeBtn.TextColor3 = COLORS.TEXT
+	changeBtn.BorderSizePixel = 0
+	changeBtn.AutoButtonColor = false
+	changeBtn.ZIndex = 103
+	
+	local changeBtnCorner = Instance.new("UICorner", changeBtn)
+	changeBtnCorner.CornerRadius = UDim.new(0, 14)
+	
+	local changeBtnStroke = Instance.new("UIStroke", changeBtn)
+	changeBtnStroke.Color = COLORS.PRIMARY
+	changeBtnStroke.Thickness = 2
+	changeBtnStroke.Transparency = 0.4
+	
+	-- Button glow
+	local btnGlow = Instance.new("ImageLabel", changeBtn)
+	btnGlow.Size = UDim2.fromScale(1.05, 1.05)
+	btnGlow.Position = UDim2.fromScale(0.5, 0.5)
+	btnGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+	btnGlow.BackgroundTransparency = 1
+	btnGlow.Image = "rbxassetid://5028857084"
+	btnGlow.ImageColor3 = COLORS.PRIMARY
+	btnGlow.ImageTransparency = 1
+	btnGlow.ScaleType = Enum.ScaleType.Slice
+	btnGlow.SliceCenter = Rect.new(24, 24, 276, 276)
+	btnGlow.ZIndex = 102
+	
+	changeBtn.MouseEnter:Connect(function()
+		TweenService:Create(changeBtn, ANIM.SMOOTH, {
+			BackgroundTransparency = 0,
+			Size = UDim2.fromOffset(345, 64)
+		}):Play()
+		TweenService:Create(changeBtnStroke, ANIM.SMOOTH, {
+			Transparency = 0.2,
+			Color = COLORS.ACCENT
+		}):Play()
+		TweenService:Create(btnGlow, ANIM.SMOOTH, {ImageTransparency = 0.5}):Play()
+	end)
+	
+	changeBtn.MouseLeave:Connect(function()
+		if not isConfiguringHotkey then
+			TweenService:Create(changeBtn, ANIM.SMOOTH, {
+				BackgroundTransparency = 0.15,
+				Size = UDim2.fromOffset(340, 60)
+			}):Play()
+			TweenService:Create(changeBtnStroke, ANIM.SMOOTH, {
+				Transparency = 0.4,
+				Color = COLORS.PRIMARY
+			}):Play()
+			TweenService:Create(btnGlow, ANIM.SMOOTH, {ImageTransparency = 1}):Play()
+		end
+	end)
+	
+	changeBtn.MouseButton1Click:Connect(function()
+		if isConfiguringHotkey then return end
+		
+		isConfiguringHotkey = true
+		changeBtn.Text = "⌛ PRESS ANY KEY..."
+		TweenService:Create(changeBtn, ANIM.SMOOTH, {BackgroundColor3 = COLORS.WARNING}):Play()
+		TweenService:Create(changeBtnStroke, ANIM.SMOOTH, {Color = COLORS.WARNING}):Play()
+		
+		local connection
+		connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+			if input.UserInputType == Enum.UserInputType.Keyboard then
+				local keyCode = input.KeyCode
+				
+				-- Ignore system keys
+				if keyCode ~= Enum.KeyCode.Unknown and 
+				   keyCode ~= Enum.KeyCode.LeftShift and 
+				   keyCode ~= Enum.KeyCode.RightShift and
+				   keyCode ~= Enum.KeyCode.LeftControl and
+				   keyCode ~= Enum.KeyCode.RightControl and
+				   keyCode ~= Enum.KeyCode.LeftAlt and
+				   keyCode ~= Enum.KeyCode.RightAlt then
+					
+					currentHotkey = keyCode
+					hotkeyText.Text = keyCode.Name
+					saveHotkey(keyCode)
+					
+					changeBtn.Text = "✅ HOTKEY UPDATED!"
+					TweenService:Create(changeBtn, ANIM.SMOOTH, {BackgroundColor3 = COLORS.SUCCESS}):Play()
+					TweenService:Create(changeBtnStroke, ANIM.SMOOTH, {Color = COLORS.SUCCESS}):Play()
+					
+					-- Flash animation
+					TweenService:Create(hotkeyDisplay, ANIM.INSTANT, {BackgroundTransparency = 0}):Play()
+					TweenService:Create(displayStroke, ANIM.INSTANT, {Transparency = 0}):Play()
+					task.wait(0.1)
+					TweenService:Create(hotkeyDisplay, ANIM.SMOOTH, {BackgroundTransparency = 0.3}):Play()
+					TweenService:Create(displayStroke, ANIM.SMOOTH, {Transparency = 0.4}):Play()
+					
+					task.wait(1.5)
+					if changeBtn and changeBtn.Parent then
+						changeBtn.Text = "🔄 CHANGE HOTKEY"
+						TweenService:Create(changeBtn, ANIM.SMOOTH, {BackgroundColor3 = COLORS.PRIMARY}):Play()
+						TweenService:Create(changeBtnStroke, ANIM.SMOOTH, {Color = COLORS.PRIMARY}):Play()
+					end
+					
+					isConfiguringHotkey = false
+					connection:Disconnect()
+				end
+			end
+		end)
+	end)
+	
+	-- Info text
+	local infoText = Instance.new("TextLabel", content)
+	infoText.Size = UDim2.fromOffset(340, 90)
+	infoText.Position = UDim2.fromOffset(0, 195)
+	infoText.BackgroundColor3 = COLORS.BG_CARD
+	infoText.BackgroundTransparency = 0.35
+	infoText.BorderSizePixel = 0
+	infoText.Text = "💡 TIP\n\nPress your hotkey anytime to toggle the menu visibility. Your hotkey is automatically saved!"
+	infoText.Font = Enum.Font.Gotham
+	infoText.TextSize = 12
+	infoText.TextColor3 = COLORS.TEXT_MUTED
+	infoText.TextWrapped = true
+	infoText.ZIndex = 103
+	
+	local infoCorner = Instance.new("UICorner", infoText)
+	infoCorner.CornerRadius = UDim.new(0, 14)
+	
+	local infoStroke = Instance.new("UIStroke", infoText)
+	infoStroke.Color = COLORS.PRIMARY
+	infoStroke.Thickness = 1.5
+	infoStroke.Transparency = 0.75
+	
+	-- Animate open
+	TweenService:Create(hotkeyMenu, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Size = UDim2.fromOffset(360, 400),
+		Position = UDim2.new(1, -380, 0.5, -200)
+	}):Play()
+end
+
+-- Hotkey listener
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard then
+		if input.KeyCode == currentHotkey and not isConfiguringHotkey then
+			toggleMainMenu()
+		end
+	end
+end)
+
+-- Load saved hotkey on startup
+loadHotkey()
+
+-- Hotkey config button in settings
+local hotkeyCard, hotkeyBtn = createActionCard(
+	"HOTKEY CONFIG",
+	"Configure your toggle menu hotkey (Default: Tab)",
+	"⌨️",
+	settingsContent,
+	function(btn)
+		if hotkeyMenuOpen then
+			if hotkeyMenu then
+				TweenService:Create(hotkeyMenu, ANIM.SMOOTH, {
+					Position = UDim2.new(1, 50, 0.5, -200),
+					Size = UDim2.fromOffset(0, 400)
+				}):Play()
+				task.wait(0.4)
+				hotkeyMenu:Destroy()
+				hotkeyMenu = nil
+			end
+			hotkeyMenuOpen = false
+			btn.Text = "▶"
+		else
+			createHotkeyMenu()
+			hotkeyMenuOpen = true
+			btn.Text = "◀"
+		end
+	end
+)
