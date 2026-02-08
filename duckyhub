@@ -1,4 +1,4 @@
--- Ducky Hub v2 - ULTRA PREMIUM SLICK EDITION
+-- Ducky Hub v1 - ULTRA PREMIUM SLICK EDITION
 -- Enhanced glassmorphism with premium animations
 -- Created by Ducky Team - discord.gg/duGj8hjB
 
@@ -9,7 +9,7 @@ local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 
-print("🦆 Ducky Hub v2 ULTRA SLICK loading...")
+print("🦆 Ducky Hub v1 ULTRA SLICK loading...")
 
 -- Premium Color Palette (Enhanced)
 local COLORS = {
@@ -460,7 +460,7 @@ badgeGradient.Rotation = 135
 local versionText = Instance.new("TextLabel", versionBadge)
 versionText.Size = UDim2.fromScale(1, 1)
 versionText.BackgroundTransparency = 1
-versionText.Text = "v2.0 SLICK"
+versionText.Text = "V1"
 versionText.Font = Enum.Font.GothamBold
 versionText.TextSize = 11
 versionText.TextColor3 = COLORS.TEXT
@@ -2701,41 +2701,10 @@ local speedCard, speedBtn = createActionCard(
 -- STEAL/SETTINGS SECTIONS
 --======================
 
--- Steal section placeholder
-local stealInfo = Instance.new("TextLabel", stealContent)
-stealInfo.Size = UDim2.fromOffset(485, 85)  -- Changed from 615, 110
-stealInfo.BackgroundColor3 = COLORS.BG_CARD
-stealInfo.BackgroundTransparency = 0.4
-stealInfo.BorderSizePixel = 0
-stealInfo.Text = "⚡ INSTANT STEAL\n\nAuto-steal features coming soon!"
-stealInfo.Font = Enum.Font.GothamBold
-stealInfo.TextSize = 15  -- Changed from 17
-stealInfo.TextColor3 = COLORS.TEXT
-stealInfo.TextWrapped = true
-Instance.new("UICorner", stealInfo).CornerRadius = UDim.new(0, 13)  -- Changed from 16
-local stealStroke = Instance.new("UIStroke", stealInfo)
-stealStroke.Color = COLORS.PRIMARY
-stealStroke.Thickness = 1.5
-stealStroke.Transparency = 0.75
 
 
 
--- Settings section placeholder
-local settingsInfo = Instance.new("TextLabel", settingsContent)
-settingsInfo.Size = UDim2.fromOffset(615, 110)
-settingsInfo.BackgroundColor3 = COLORS.BG_CARD
-settingsInfo.BackgroundTransparency = 0.4
-settingsInfo.BorderSizePixel = 0
-settingsInfo.Text = "⚙️ SETTINGS\n\nCustomization options coming soon!"
-settingsInfo.Font = Enum.Font.GothamBold
-settingsInfo.TextSize = 17
-settingsInfo.TextColor3 = COLORS.TEXT
-settingsInfo.TextWrapped = true
-Instance.new("UICorner", settingsInfo).CornerRadius = UDim.new(0, 16)
-local settingsStroke = Instance.new("UIStroke", settingsInfo)
-settingsStroke.Color = COLORS.PRIMARY
-settingsStroke.Thickness = 1.5
-settingsStroke.Transparency = 0.75
+
 
 -- Set default section with enhanced animation
 espSection.Visible = true
@@ -2804,7 +2773,7 @@ for _, child in pairs(main:GetDescendants()) do
 	end
 end
 
-print("✅ Ducky Hub v2 ULTRA SLICK loaded!")
+print("✅ Ducky Hub v1 ULTRA SLICK loaded!")
 print("🎨 Enhanced glassmorphism design")
 print("✨ Premium animations and effects")
 print("🌟 All features preserved and enhanced")
@@ -4907,3 +4876,4 @@ print("✅ TP Steal section complete - FLYING CARPET AUTO-EQUIP!")
 print("📍 Features: Auto-equips Flying Carpet, always cycles 1→end!")
 print("🔄 Default cycle hotkey: " .. cycleHotkey.Name)
 print("⚡ Hold delay: 0.2s | Always goes forward: 1, 2, 3... to end!")
+
